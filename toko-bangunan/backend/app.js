@@ -22,8 +22,7 @@ app.use(cors({
     }
 
     if (
-      origin.includes('web-toko') &&
-      origin.endsWith('.vercel.app')
+      (origin.includes('store-flow') || origin.includes('storeflow')) && origin.endsWith('.vercel.app')
     ) {
       return callback(null, true);
     }
