@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 export default function LoginPage() {
-  const [email, setEmail]       = useState('owner@toko.com');
-  const [password, setPassword] = useState('password');
+  const [email, setEmail]       = useState('demo@storeflow.app');
+  const [password, setPassword] = useState('demo1234');
   const [error, setError]       = useState('');
   const [loading, setLoading]   = useState(false);
   const { login } = useAuth();
@@ -54,7 +54,7 @@ export default function LoginPage() {
               onChange={e => setEmail(e.target.value)}
               required
               style={{ width: '100%', padding: '10px 12px', border: '1px solid #d1d5db', borderRadius: 8, fontSize: 14, boxSizing: 'border-box' }}
-              placeholder="owner@toko.com"
+              placeholder="demo@storeflow.app"
             />
           </div>
 
