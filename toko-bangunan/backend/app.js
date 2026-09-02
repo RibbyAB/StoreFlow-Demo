@@ -22,7 +22,8 @@ app.use(cors({
     }
 
     if (
-      (origin.includes('store-flow') || origin.includes('storeflow')) && origin.endsWith('.vercel.app')
+      (origin.includes('store-flow') || origin.includes('storeflow')) &&
+      origin.endsWith('.vercel.app')
     ) {
       return callback(null, true);
     }

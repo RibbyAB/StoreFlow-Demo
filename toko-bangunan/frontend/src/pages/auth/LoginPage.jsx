@@ -35,7 +35,7 @@ export default function LoginPage() {
       }}>
         <div style={{ textAlign: 'center', marginBottom: 28 }}>
           <div style={{ fontSize: 40, marginBottom: 8 }}>🏗️</div>
-          <h1 style={{ margin: 0, fontSize: 22, color: '#1e293b' }}>Toko Bangunan</h1>
+          <h1 style={{ margin: 0, fontSize: 22, color: '#1e293b' }}>StoreFlow</h1>
           <p style={{ margin: '4px 0 0', color: '#64748b', fontSize: 14 }}>Sistem Manajemen Toko</p>
         </div>
 

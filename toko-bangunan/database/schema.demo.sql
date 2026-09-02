@@ -1,10 +1,9 @@
 -- =============================================
--- SCHEMA DATABASE STOREFLOW
--- Jalankan file ini di phpMyAdmin atau MySQL CLI
+-- SCHEMA DATABASE UNTUK DEMO (Demo-StoreFlow)
+-- Jalankan di TiDB SQL Editor, pastikan database aktif = Demo-StoreFlow
 -- =============================================
 
-CREATE DATABASE IF NOT EXISTS storeflow CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE storeflow;
+USE `test`;
 
 -- =============================================
 -- TABEL USERS (Kasir & Owner)
@@ -183,12 +182,13 @@ CREATE TABLE IF NOT EXISTS operasional (
 );
 
 -- =============================================
--- DATA AWAL: Akun Owner Default
--- Password default: admin123
--- WAJIB ganti password ini segera setelah login pertama kali di production!
+-- DATA AWAL: Akun Demo (BUKAN akun operasional toko asli)
+-- Email    : demo@storeflow.app
+-- Password : demo1234
+-- Kredensial ini boleh dicantumkan publik di README untuk keperluan testing.
 -- =============================================
 INSERT INTO users (nama, email, password, role) VALUES
-('Admin Owner', 'owner@example.com', '$2a$15$9SjK7MLEfNPM/EjkzRMZSeiWig6IIpNZKZZnERiIdU/e5gg875xPe', 'owner');
+('Demo Owner', 'demo@storeflow.app', '$2b$10$bY5KEQa0WLxEQHzt6z0xIucxBXixwa7pgi0DjQlPd8vSS1fElOJ8O', 'owner');
 
 -- =============================================
 -- DATA AWAL: Kategori Barang Contoh
@@ -208,3 +208,7 @@ INSERT INTO barang (kode_barang, nama, kategori, satuan, harga_beli, harga_jual,
 INSERT INTO supplier (nama, telepon, alamat) VALUES
 ('PT. Sumber Makmur',     '021-5551234', 'Jl. Industri No. 10, Jakarta'),
 ('UD. Bahan Bangunan Jaya', '021-5559876', 'Jl. Raya Serpong No. 5, Tangerang');
+
+INSERT INTO pelanggan (nama, telepon, alamat, tipe) VALUES
+('Budi Santoso', '0812-3456-7890', 'Jl. Merdeka No. 12, Bandung', 'eceran'),
+('CV. Karya Bangun', '022-6667788', 'Jl. Industri Timur No. 3, Bandung', 'grosir');

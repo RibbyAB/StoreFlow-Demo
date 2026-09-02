@@ -203,7 +203,7 @@ const cetakRekapHarian = (harian, tanggal) => {
     <thead><tr><th>#</th><th>Nama Barang</th><th style="text-align:right">Qty</th><th style="text-align:right">Total Nilai</th></tr></thead>
     <tbody>${barangRows || '<tr><td colspan="4" style="text-align:center;color:#94a3b8">Tidak ada data</td></tr>'}</tbody>
   </table>
-  <div class="footer">— Sistem Laporan Toko Bangunan —</div>
+  <div class="footer">— Sistem Laporan StoreFlow —</div>
   </body></html>`);
   w.document.close();
   w.focus();
@@ -346,7 +346,7 @@ const cetakLabaRugiBulanan = (labaRugi, bulan, tren12) => {
     </tr></thead>
     <tbody>${trenRows}</tbody>
   </table>
-  <div class="footer">— Sistem Laporan Toko Bangunan —</div>
+  <div class="footer">— Sistem Laporan StoreFlow —</div>
   </body></html>`);
   w.document.close();
   w.focus();
