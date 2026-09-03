@@ -1593,10 +1593,12 @@ export default function PembelianPage() {
                 const lunasSemua = riwayatFiltered
                   .filter(r => {
                     if (r.status !== 'lunas' || invalidIds.has(r.id)) return false;
-                    // Nota lunas yang ditampilin ngikutin bulan yang lagi dipilih di dropdown Bulan.
-                    // Kalau notanya dulu punya jatuh tempo (bekas hutang yang dilunasin), pakai itu.
-                    // Kalau langsung "Lunas" dari awal (gak pernah ada jatuh tempo), pakai tanggal nota dibuat.
-                    const tglAcuan = r.jatuh_tempo || r.created_at;
+                    // Nota lunas sekarang dikelompokkan berdasarkan BULAN PELUNASANNYA (dilunasi_at),
+                    // bukan bulan jatuh tempo/nota dibuat lagi -- biar nota yang dibuat bulan lalu
+                    // tapi baru lunas bulan ini, muncul di grup bulan ini (bulan pas dia beneran lunas).
+                    // Kalau dilunasi_at kosong (data lama dari sebelum field ini ada), fallback ke
+                    // jatuh_tempo/tanggal dibuat biar datanya tetap kelihatan, gak ilang begitu aja.
+                    const tglAcuan = r.dilunasi_at || r.jatuh_tempo || r.created_at;
                     const d = new Date(tglAcuan);
                     const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
                     return tampilkanSemuaBulan || key === filterBulanRiwayat;
