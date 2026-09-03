@@ -13,7 +13,7 @@ const isLocalNetwork =
 
 const API_BASE_URL = isLocalNetwork
   ? `http://${hostname}:8080/api`
-  : 'https://store-flow-two.vercel.app/api';
+  : 'https://store-flow-demo.vercel.app/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
