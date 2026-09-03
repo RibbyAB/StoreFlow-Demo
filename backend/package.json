@@ -1,5 +1,5 @@
 {
-  "name": "toko-bangunan-backend",
+  "name": "storeflow-backend",
   "version": "1.0.0",
   "description": "Backend sistem manajemen StoreFlow",
   "main": "app.js",
