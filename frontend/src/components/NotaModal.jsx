@@ -10,7 +10,7 @@ import useIsMobile from '../hooks/useIsMobile';
 const formatRp = (n) =>
   new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(n || 0);
 
-/* ─── NOTA MODAL ──────────────────────────────────────────────── */
+
 export default function NotaModal({ transaksiId, nomorHarian, onClose, onLunasSuccess, hideCicilHint }) {
   const { user } = useAuth();
   const { pengaturan } = usePengaturan();
@@ -35,14 +35,13 @@ export default function NotaModal({ transaksiId, nomorHarian, onClose, onLunasSu
   const [namaEdit,      setNamaEdit]    = useState('');
   const [savingNama,    setSavingNama]  = useState(false);
 
-  // Cicilan buat pelanggan Umum/tanpa nama -- gak bisa ditrack lewat Piutang Pelanggan
-  // (soalnya emang sengaja dikecualikan dari situ), jadi cicil-nya langsung di sini aja.
+
   const [showCicilPanel, setShowCicilPanel] = useState(false);
   const [jumlahCicil,    setJumlahCicil]    = useState('');
   const [prosesCicil,    setProsesCicil]    = useState(false);
   const [cicilanList,    setCicilanList]    = useState([]);
 
-  // Muat detail transaksi setiap kali transaksiId berubah
+
   const muatDetail = useCallback(() => {
     if (!transaksiId) return;
     setLoading(true);
@@ -69,7 +68,7 @@ export default function NotaModal({ transaksiId, nomorHarian, onClose, onLunasSu
 
   useEffect(() => { muatDetail(); }, [muatDetail]);
 
-  /* ── Bayar cicilan sebagian (khusus pelanggan Umum/tanpa nama) ── */
+
   const handleCicilan = async () => {
     const jml = Number(jumlahCicil);
     const sisa = Number(data.total) - Number(data.total_dibayar || 0);
@@ -104,10 +103,10 @@ export default function NotaModal({ transaksiId, nomorHarian, onClose, onLunasSu
     }
   };
 
-  /* ── Cetak nota ── */
+
   const cetak = () => {
     if (!data) return;
-    // Gunakan metode_bayar terkini dari state data (sudah diupdate setelah lunasi)
+
     const metodeTampil = data.metode_bayar === 'hutang'
       ? 'Hutang (Belum Lunas)'
       : data.metode_bayar;
@@ -172,8 +171,7 @@ ${pengaturan?.footer_nota2 ? `<p class="notice" style="font-weight:900;">${penga
     setTimeout(() => { w.print(); w.close(); }, 400);
   };
 
-  /* ── Proses pelunasan — kirim metode ke backend, lalu refresh parent ── */
-  /* ── Simpan perubahan nama pelanggan ── */
+
   const simpanNamaPelanggan = async () => {
     const namaFinal = namaEdit.trim() || 'Pelanggan Umum';
     setSavingNama(true);
@@ -183,7 +181,7 @@ ${pengaturan?.footer_nota2 ? `<p class="notice" style="font-weight:900;">${penga
       setData(prev => ({ ...prev, pelanggan: namaFinal }));
       setEditNamaMode(false);
       toast.success('Nama pelanggan berhasil diperbarui.', { position: 'top-center' });
-      if (typeof onLunasSuccess === 'function') onLunasSuccess(); // refresh list di halaman parent
+      if (typeof onLunasSuccess === 'function') onLunasSuccess();
     } catch (err) {
       toast.error(err.response?.data?.message || 'Gagal mengubah nama pelanggan.', { position: 'top-center' });
     } finally {
@@ -210,7 +208,7 @@ ${pengaturan?.footer_nota2 ? `<p class="notice" style="font-weight:900;">${penga
     }
   };
 
-  /* ── Batalkan transaksi (salah input) — kembalikan stok & tandai dibatalkan ── */
+
   const handleBatalkan = async () => {
     setProsesBatal(true);
     setError('');
@@ -231,7 +229,7 @@ ${pengaturan?.footer_nota2 ? `<p class="notice" style="font-weight:900;">${penga
     }
   };
 
-  /* ── Hapus permanen transaksi yang sudah dibatalkan (beresin riwayat) ── */
+
   const handleHapus = () => {
     toast((t) => (
       <span style={{ fontSize: '14px', color: '#1e293b' }}>
@@ -272,7 +270,7 @@ ${pengaturan?.footer_nota2 ? `<p class="notice" style="font-weight:900;">${penga
     }
   };
 
-  /* ── Helpers UI ── */
+
   const isHutang     = data?.metode_bayar === 'hutang' && data?.status !== 'lunas' && data?.status !== 'dibatalkan';
   const isUmum       = !data?.pelanggan || data.pelanggan.trim() === '' || data.pelanggan.trim().toLowerCase().includes('umum');
   const isDibatalkan = data?.status === 'dibatalkan';
@@ -298,14 +296,14 @@ ${pengaturan?.footer_nota2 ? `<p class="notice" style="font-weight:900;">${penga
     >
       <div style={{ background: '#fff', borderRadius: 16, width: 'min(440px, 94vw)', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 24px 64px rgba(0,0,0,0.2)', display: 'flex', flexDirection: 'column' }}>
 
-        {/* ── Header modal ── */}
+        {}
         <div style={{ padding: isMobile ? '14px 16px 12px' : '20px 24px 16px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <div style={{ fontWeight: 700, fontSize: 16, color: '#1e293b' }}>Detail Transaksi #{nomorHarian ?? transaksiId}</div>
             {data && <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>{new Date(data.created_at).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Jakarta' })} | {new Date(data.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Jakarta' })}</div>}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            {/* Badge status langsung di header agar selalu terlihat */}
+            {}
             {statusBadge && (
               <span style={{ fontSize: 12, fontWeight: 700, padding: '4px 12px', borderRadius: 20, background: statusBadge.bg, color: statusBadge.color, border: `1px solid ${statusBadge.border}` }}>
                 {statusBadge.label}
@@ -315,7 +313,7 @@ ${pengaturan?.footer_nota2 ? `<p class="notice" style="font-weight:900;">${penga
           </div>
         </div>
 
-        {/* ── Banner sukses setelah pembatalan ── */}
+        {}
         {batalBerhasil && (
           <div style={{ margin: '16px 24px 0', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 10, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 10 }}>
             <span style={{ fontSize: 20 }}>✅</span>
@@ -326,7 +324,7 @@ ${pengaturan?.footer_nota2 ? `<p class="notice" style="font-weight:900;">${penga
           </div>
         )}
 
-        {/* ── Banner info jika transaksi memang sudah berstatus dibatalkan ── */}
+        {}
         {isDibatalkan && !batalBerhasil && (
           <div style={{ margin: '16px 24px 0', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 10, padding: '12px 16px', fontSize: 13, color: '#dc2626' }}>
             ❌ Transaksi ini telah dibatalkan{data?.alasan_batal ? `: "${data.alasan_batal}"` : '.'}
@@ -344,7 +342,7 @@ ${pengaturan?.footer_nota2 ? `<p class="notice" style="font-weight:900;">${penga
           </div>
         )}
 
-        {/* ── Banner sukses setelah pelunasan ── */}
+        {}
         {lunasBerhasil && (
           <div style={{ margin: '16px 24px 0', background: '#f0fdf4', border: '1px solid #86efac', borderRadius: 10, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 10 }}>
             <span style={{ fontSize: 20 }}>✅</span>
@@ -355,14 +353,14 @@ ${pengaturan?.footer_nota2 ? `<p class="notice" style="font-weight:900;">${penga
           </div>
         )}
 
-        {/* ── Body ── */}
+        {}
         <div style={{ padding: isMobile ? '14px 16px' : '20px 24px', flex: 1 }}>
           {loading && <div style={{ textAlign: 'center', padding: '32px 0', color: '#94a3b8' }}>⏳ Memuat nota...</div>}
           {error   && <div style={{ background: '#fef2f2', color: '#dc2626', padding: '10px 14px', borderRadius: 8, fontSize: 13, marginBottom: 12 }}>⚠️ {error}</div>}
 
           {data && !loading && (
             <>
-              {/* Info grid */}
+              {}
               <div style={{ background: '#f8fafc', borderRadius: 10, padding: '12px 16px', marginBottom: 20, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 16px' }}>
                 <div>
                   <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 2 }}>Kasir</div>
@@ -409,7 +407,7 @@ ${pengaturan?.footer_nota2 ? `<p class="notice" style="font-weight:900;">${penga
                 </div>
               </div>
 
-              {/* Tabel item */}
+              {}
               <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Barang yang Dibeli</div>
               <div style={{ border: '1px solid #e2e8f0', borderRadius: 10, overflow: 'auto', marginBottom: 16 }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
@@ -438,7 +436,7 @@ ${pengaturan?.footer_nota2 ? `<p class="notice" style="font-weight:900;">${penga
                 </table>
               </div>
 
-              {/* Ringkasan harga */}
+              {}
               <div style={{ background: '#f8fafc', borderRadius: 10, padding: '12px 16px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 6, color: '#64748b' }}>
                   <span>Subtotal</span><span>{formatRp(data.subtotal)}</span>
@@ -458,7 +456,7 @@ ${pengaturan?.footer_nota2 ? `<p class="notice" style="font-weight:900;">${penga
                 </div>
               </div>
 
-              {/* ── Panel konfirmasi pelunasan (muncul setelah klik "Lunasi Hutang") ── */}
+              {}
               {isHutang && showKonfirmasi && (
                 <div style={{ marginTop: 16, background: '#fffbeb', border: '1.5px solid #fde68a', borderRadius: 12, padding: '16px 18px' }}>
                   <div style={{ fontWeight: 700, fontSize: 14, color: '#92400e', marginBottom: 4 }}>⚠️ Konfirmasi Pelunasan</div>
@@ -466,7 +464,7 @@ ${pengaturan?.footer_nota2 ? `<p class="notice" style="font-weight:900;">${penga
                     Pilih metode pembayaran yang digunakan pelanggan untuk melunasi sisa hutang sebesar <strong>{formatRp(Number(data.total) - Number(data.total_dibayar || 0))}</strong>.
                   </div>
 
-                  {/* Pilih metode pelunasan */}
+                  {}
                   <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Metode Pembayaran</div>
                   <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
                     {METODE_BAYAR.map(m => (
@@ -482,7 +480,7 @@ ${pengaturan?.footer_nota2 ? `<p class="notice" style="font-weight:900;">${penga
                     ))}
                   </div>
 
-                  {/* Ringkasan konfirmasi */}
+                  {}
                   <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 8, padding: '10px 14px', marginBottom: 14, fontSize: 13 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                       <span style={{ color: '#64748b' }}>Sisa yang dilunasi</span>
@@ -507,7 +505,7 @@ ${pengaturan?.footer_nota2 ? `<p class="notice" style="font-weight:900;">${penga
                 </div>
               )}
 
-              {/* ── Panel konfirmasi pembatalan transaksi (khusus owner) ── */}
+              {}
               {bisaBatalkan && showBatalkan && (
                 <div style={{ marginTop: 16, background: '#fef2f2', border: '1.5px solid #fecaca', borderRadius: 12, padding: '16px 18px' }}>
                   <div style={{ fontWeight: 700, fontSize: 14, color: '#dc2626', marginBottom: 4 }}>⚠️ Batalkan Transaksi Ini?</div>
@@ -540,7 +538,7 @@ ${pengaturan?.footer_nota2 ? `<p class="notice" style="font-weight:900;">${penga
           )}
         </div>
 
-        {/* ── Footer ── */}
+        {}
         {data && !loading && (
           <div style={{ padding: '16px 24px', borderTop: '1px solid #e2e8f0' }}>
             {isHutang && Number(data.total_dibayar) > 0 && (
@@ -550,7 +548,7 @@ ${pengaturan?.footer_nota2 ? `<p class="notice" style="font-weight:900;">${penga
               </div>
             )}
 
-            {/* Tombol "Lunasi Hutang" — tampil hanya jika masih hutang & panel konfirmasi belum buka */}
+            {}
             {isHutang && !showKonfirmasi && (
               <button onClick={() => { setShowKonfirmasi(true); setMetodeLunas('tunai'); setError(''); }}
                 style={{ width: '100%', padding: '12px', background: '#f59e0b', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 700, marginBottom: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
@@ -561,8 +559,7 @@ ${pengaturan?.footer_nota2 ? `<p class="notice" style="font-weight:900;">${penga
               </button>
             )}
 
-            {/* Pelanggan "Umum"/tanpa nama gak bisa ditrack lewat Piutang Pelanggan (sengaja dikecualikan
-                di situ karena gak ada identitas jelas), jadi cicil-nya langsung di sini aja. */}
+            {}
             {isHutang && isUmum && !showKonfirmasi && !showCicilPanel && (
               <button onClick={() => { setShowCicilPanel(true); setJumlahCicil(''); setError(''); }}
                 style={{ width: '100%', padding: '11px', background: '#eff6ff', color: '#2563eb', border: '1.5px solid #bfdbfe', borderRadius: 8, cursor: 'pointer', fontSize: 13.5, fontWeight: 700, marginBottom: 10 }}
@@ -615,7 +612,7 @@ ${pengaturan?.footer_nota2 ? `<p class="notice" style="font-weight:900;">${penga
               </div>
             )}
 
-            {/* Tombol "Batalkan Transaksi" — khusus owner, jika belum dibatalkan & panel batal belum buka */}
+            {}
             {bisaBatalkan && !showBatalkan && (
               <button onClick={() => { setShowBatalkan(true); setAlasanBatal(''); setError(''); }}
                 style={{ width: '100%', padding: '12px', background: '#fff', color: '#dc2626', border: '1.5px solid #fecaca', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 700, marginBottom: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}

@@ -5,14 +5,14 @@ const { authMiddleware, roleMiddleware } = require('../middleware/authMiddleware
 
 router.use(authMiddleware);
 
-// POST /api/pembelian - catat pembelian barang dari supplier
+
 router.post('/', async (req, res) => {
   const conn = await db.getConnection();
   try {
     await conn.beginTransaction();
-    
-    // 1. Tambahkan 'status' & 'jatuh_tempo' ke sini
-    const { supplier_id, items, catatan = '', status = 'lunas', jatuh_tempo = null, skip_stok = false } = req.body; 
+
+
+    const { supplier_id, items, catatan = '', status = 'lunas', jatuh_tempo = null, skip_stok = false } = req.body;
 
     if (!items || items.length === 0) {
       await conn.rollback();
@@ -25,35 +25,31 @@ router.post('/', async (req, res) => {
 
     const total = items.reduce((sum, i) => sum + (i.qty * i.harga_beli), 0);
 
-    // 2. Tambahkan 'status' & 'jatuh_tempo' ke query INSERT
-    // Kalau status langsung 'lunas' pas dibuat, total_dibayar harus ikut keisi = total
-    // (biar konsisten -- sebelumnya kolom ini kebiarin 0 walau statusnya lunas).
+
     const totalDibayarAwal = status === 'lunas' ? total : 0;
     const dilunasiAtAwal   = status === 'lunas' ? new Date() : null;
     const [result] = await conn.query(
       'INSERT INTO pembelian (supplier_id, total, total_dibayar, catatan, status, jatuh_tempo, stok_ditambahkan, dilunasi_at, dibuat_oleh) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
       [supplier_id || null, total, totalDibayarAwal, catatan, status, status === 'hutang' ? (jatuh_tempo || null) : null, skip_stok ? 0 : 1, dilunasiAtAwal, req.user.id]
     );
-    
+
     const pembelianId = result.insertId;
 
     for (const item of items) {
       if (item.barang_id) {
-        // Item barang beneran -> tercatat di detail_pembelian dengan barang_id
+
         await conn.query(
           'INSERT INTO detail_pembelian (pembelian_id, barang_id, qty, harga_beli) VALUES (?, ?, ?, ?)',
           [pembelianId, item.barang_id, item.qty, item.harga_beli]
         );
         if (!skip_stok) {
-          // Stok cuma ditambah kalau skip_stok gak dicentang (default: nambah stok kayak biasa).
-          // Harga beli di master data Barang SENGAJA gak diubah otomatis walau beda sama harga di nota ini
-          // -- biar gak ke-overwrite gak sengaja kalau harga belinya kebetulan lagi beda (naik/turun sesaat).
-          // Harga beli di nota ini sendiri tetap kesimpen apa adanya di detail_pembelian di atas.
+
+
           await conn.query('UPDATE barang SET stok = stok + ? WHERE id = ?',
             [item.qty, item.barang_id]);
         }
       } else {
-        // Item manual (belum ada di database Barang) -> cuma masuk nota, gak nyentuh stok sama sekali
+
         if (!item.nama_manual || !item.nama_manual.trim()) {
           throw new Error('Nama item manual harus diisi.');
         }
@@ -99,7 +95,7 @@ router.get('/:id/detail', async (req, res) => {
       LEFT JOIN barang b ON dp.barang_id = b.id
       WHERE dp.pembelian_id = ?
     `, [req.params.id]);
-    
+
     res.json({ success: true, data: rows });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -125,7 +121,7 @@ router.put('/:id/lunasi', async (req, res) => {
   }
 });
 
-// GET /api/pembelian/:id/cicilan - riwayat cicilan yang sudah dibayar untuk 1 pembelian
+
 router.get('/:id/cicilan', async (req, res) => {
   try {
     const [rows] = await db.query(`
@@ -141,8 +137,7 @@ router.get('/:id/cicilan', async (req, res) => {
   }
 });
 
-// DELETE /api/pembelian/:id/cicil/:cicilanId - hapus 1 catatan cicilan (salah input), otomatis
-// hitung ulang total_dibayar & balikin status jadi 'hutang' lagi kalau sebelumnya kepencet lunas.
+
 router.delete('/:id/cicil/:cicilanId', roleMiddleware('owner'), async (req, res) => {
   const conn = await db.getConnection();
   try {
@@ -187,7 +182,7 @@ router.delete('/:id/cicil/:cicilanId', roleMiddleware('owner'), async (req, res)
   }
 });
 
-// POST /api/pembelian/:id/cicil - bayar cicilan sebagian untuk hutang ke supplier
+
 router.post('/:id/cicil', async (req, res) => {
   const conn = await db.getConnection();
   try {
@@ -212,7 +207,7 @@ router.post('/:id/cicil', async (req, res) => {
     }
 
     const sisaSaatIni = Number(pb.total) - Number(pb.total_dibayar);
-    if (jml > sisaSaatIni + 0.5) { // toleransi pembulatan kecil
+    if (jml > sisaSaatIni + 0.5) {
       await conn.rollback();
       return res.status(400).json({ success: false, message: `Jumlah cicilan melebihi sisa hutang (${sisaSaatIni}).` });
     }
@@ -246,7 +241,7 @@ router.post('/:id/cicil', async (req, res) => {
   }
 });
 
-// PUT /api/pembelian/lunasi-batch - lunasi beberapa transaksi hutang sekaligus (dipilih dari tab Riwayat)
+
 router.put('/lunasi-batch', async (req, res) => {
   try {
     const { ids } = req.body;
@@ -264,8 +259,7 @@ router.put('/lunasi-batch', async (req, res) => {
   }
 });
 
-// PUT /api/pembelian/:id/batalkan - batalkan pembelian yang salah input (khusus owner)
-// Stok yang sebelumnya ditambahkan oleh pembelian ini akan dikurangi kembali.
+
 router.put('/:id/batalkan', roleMiddleware('owner'), async (req, res) => {
   const conn = await db.getConnection();
   try {
@@ -286,8 +280,7 @@ router.put('/:id/batalkan', roleMiddleware('owner'), async (req, res) => {
       return res.status(400).json({ success: false, message: 'Pembelian ini sudah dibatalkan sebelumnya.' });
     }
 
-    // Kalau notanya dibuat dengan "jangan tambah stok" (stok udah ditambahkan sebelumnya di luar nota ini),
-    // pas dibatalkan juga gak perlu ngurangin stok -- soalnya stoknya emang gak pernah nambah dari nota ini.
+
     if (!cek[0].stok_ditambahkan) {
       await conn.query(
         `UPDATE pembelian
@@ -312,7 +305,7 @@ router.put('/:id/batalkan', roleMiddleware('owner'), async (req, res) => {
       [req.params.id]
     );
 
-    // Pastikan stok tidak menjadi negatif (barang sudah terlanjur terjual sebagian)
+
     for (const item of items) {
       if (Number(item.stok) < Number(item.qty)) {
         await conn.rollback();
@@ -349,7 +342,7 @@ router.put('/:id/batalkan', roleMiddleware('owner'), async (req, res) => {
   }
 });
 
-// DELETE /api/pembelian/:id - hapus permanen transaksi yang sudah dibatalkan (khusus owner, buat beresin riwayat)
+
 router.delete('/:id', roleMiddleware('owner'), async (req, res) => {
   try {
     const [cek] = await db.query('SELECT id, status FROM pembelian WHERE id = ?', [req.params.id]);

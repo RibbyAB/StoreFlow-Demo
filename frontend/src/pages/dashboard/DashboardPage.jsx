@@ -6,7 +6,7 @@ import useIsMobile from '../../hooks/useIsMobile';
 
 const formatWIB = (isoString, formatOptions) => {
   if (!isoString) return '-';
-  const tanggalSaja = isoString.split('T')[0]; 
+  const tanggalSaja = isoString.split('T')[0];
   const [y, m, d] = tanggalSaja.split('-');
   const date = new Date(y, m - 1, d);
   return date.toLocaleDateString('id-ID', formatOptions);
@@ -34,14 +34,14 @@ const KartuRingkasan = ({ icon, label, nilai, warna, sub }) => (
 const formatTanggal = (isoString) => {
   if (!isoString) return '-';
   const date = new Date(isoString);
-  // Menambahkan 7 jam untuk konversi UTC ke WIB (Opsional, sesuaikan dengan server Anda)
-  date.setHours(date.getHours() + 7); 
+
+  date.setHours(date.getHours() + 7);
   return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
 };
 
 const hariIniISO = () => new Date(Date.now() + 7 * 60 * 60 * 1000).toISOString().split('T')[0];
 
-// Hitung urgensi jatuh tempo hutang ke supplier (sama persis logikanya kayak di halaman Pembelian)
+
 const getInfoJatuhTempo = (tanggal) => {
   const hariIni = new Date(); hariIni.setHours(0, 0, 0, 0);
   const jt = new Date(tanggal); jt.setHours(0, 0, 0, 0);
@@ -106,11 +106,10 @@ export default function DashboardPage() {
     muatDashboard();
     muatJatuhTempo();
 
-    // Refresh otomatis tiap 30 detik, biar grafik & angka selalu terkini
-    // tanpa harus reload halaman manual (mis. saat kasir baru saja transaksi).
+
     const interval = setInterval(() => muatDashboard(true), 30000);
 
-    // Refresh juga saat tab ini kembali aktif (mis. habis pindah tab buat transaksi lalu balik lagi).
+
     const onFocus = () => muatDashboard(true);
     window.addEventListener('focus', onFocus);
     document.addEventListener('visibilitychange', () => {
@@ -142,7 +141,7 @@ export default function DashboardPage() {
         </button>
       </div>
 
-      {/* Notifikasi hutang ke supplier yang mendekati/lewat jatuh tempo */}
+      {}
       {hutangJatuhTempo.length > 0 && (() => {
         const sudahLewat = hutangJatuhTempo.filter(r => r.info.urgensi === 3);
         const mendekati  = hutangJatuhTempo.filter(r => r.info.urgensi < 3);
@@ -252,7 +251,7 @@ export default function DashboardPage() {
         );
       })()}
 
-      {/* Kartu Ringkasan */}
+      {}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 24 }}>
         <KartuRingkasan icon="💰" label="Pendapatan Hari Ini" nilai={formatRupiah(penjualan_hari_ini?.total_pendapatan)} warna="#22c55e" />
         <KartuRingkasan icon="🛒" label="Transaksi Hari Ini" nilai={penjualan_hari_ini?.total_transaksi || 0} warna="#3b82f6" sub="transaksi" />
@@ -261,7 +260,7 @@ export default function DashboardPage() {
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 20 }}>
-        {/* Grafik 7 Hari Terakhir */}
+        {}
         <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: 20 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
             <h3 style={{ margin: 0, fontSize: 15, color: '#1e293b' }}>Penjualan 7 Hari Terakhir</h3>
@@ -302,7 +301,7 @@ export default function DashboardPage() {
           ) : <p style={{ color: '#94a3b8', fontSize: 14 }}>Belum ada data penjualan.</p>}
         </div>
 
-         {/* Transaksi Terakhir */}
+         {}
           <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: 20, overflowX: 'auto' }}>
             <h3 style={{ margin: '0 0 16px', fontSize: 15, color: '#1e293b' }}>Transaksi Terakhir</h3>
             {transaksi_terakhir?.length > 0 ? (
@@ -323,7 +322,7 @@ export default function DashboardPage() {
                       if (t.metode_bayar === 'tunai')    return { bg: '#dcfce7', color: '#166534', label: 'Tunai' };
                       if (t.metode_bayar === 'transfer') return { bg: '#dbeafe', color: '#1e40af', label: 'Transfer' };
                       if (t.metode_bayar === 'qris')     return { bg: '#ede9fe', color: '#5b21b6', label: 'QRIS' };
-                      // hutang yang sudah lunas → tampilkan metode pelunasannya
+
                       return { bg: '#dcfce7', color: '#166534', label: t.metode_bayar || 'Lunas' };
                     })();
                     const statusConfig =

@@ -1,13 +1,6 @@
--- =============================================
--- SCHEMA DATABASE UNTUK DEMO (Demo-StoreFlow)
--- Jalankan di TiDB SQL Editor, pastikan database aktif = Demo-StoreFlow
--- =============================================
 
 USE `test`;
 
--- =============================================
--- TABEL USERS (Kasir & Owner)
--- =============================================
 CREATE TABLE IF NOT EXISTS users (
   id          INT AUTO_INCREMENT PRIMARY KEY,
   nama        VARCHAR(100) NOT NULL,
@@ -19,9 +12,6 @@ CREATE TABLE IF NOT EXISTS users (
   updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- =============================================
--- TABEL BARANG
--- =============================================
 CREATE TABLE IF NOT EXISTS barang (
   id            INT AUTO_INCREMENT PRIMARY KEY,
   kode_barang   VARCHAR(50) UNIQUE,
@@ -39,9 +29,6 @@ CREATE TABLE IF NOT EXISTS barang (
   INDEX idx_kategori (kategori)
 );
 
--- =============================================
--- TABEL SUPPLIER
--- =============================================
 CREATE TABLE IF NOT EXISTS supplier (
   id          INT AUTO_INCREMENT PRIMARY KEY,
   nama        VARCHAR(150) NOT NULL,
@@ -51,9 +38,6 @@ CREATE TABLE IF NOT EXISTS supplier (
   created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- =============================================
--- TABEL PELANGGAN
--- =============================================
 CREATE TABLE IF NOT EXISTS pelanggan (
   id          INT AUTO_INCREMENT PRIMARY KEY,
   nama        VARCHAR(150) NOT NULL,
@@ -63,9 +47,6 @@ CREATE TABLE IF NOT EXISTS pelanggan (
   created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- =============================================
--- TABEL PENJUALAN (Header)
--- =============================================
 CREATE TABLE IF NOT EXISTS penjualan (
   id              INT AUTO_INCREMENT PRIMARY KEY,
   pelanggan_id    INT,
@@ -102,9 +83,6 @@ CREATE TABLE IF NOT EXISTS cicilan_penjualan (
   FOREIGN KEY (dibuat_oleh) REFERENCES users(id)
 );
 
--- =============================================
--- TABEL DETAIL PENJUALAN (Isi Transaksi)
--- =============================================
 CREATE TABLE IF NOT EXISTS detail_penjualan (
   id            INT AUTO_INCREMENT PRIMARY KEY,
   penjualan_id  INT NOT NULL,
@@ -116,9 +94,6 @@ CREATE TABLE IF NOT EXISTS detail_penjualan (
   FOREIGN KEY (barang_id)    REFERENCES barang(id)
 );
 
--- =============================================
--- TABEL PEMBELIAN (Header)
--- =============================================
 CREATE TABLE IF NOT EXISTS pembelian (
   id              INT AUTO_INCREMENT PRIMARY KEY,
   supplier_id     INT,
@@ -151,9 +126,6 @@ CREATE TABLE IF NOT EXISTS cicilan_pembelian (
   FOREIGN KEY (dibuat_oleh) REFERENCES users(id)
 );
 
--- =============================================
--- TABEL DETAIL PEMBELIAN
--- =============================================
 CREATE TABLE IF NOT EXISTS detail_pembelian (
   id            INT AUTO_INCREMENT PRIMARY KEY,
   pembelian_id  INT NOT NULL,
@@ -166,9 +138,6 @@ CREATE TABLE IF NOT EXISTS detail_pembelian (
   FOREIGN KEY (barang_id)    REFERENCES barang(id)
 );
 
--- =============================================
--- TABEL OPERASIONAL (biaya jalan usaha, bukan pembelian stok)
--- =============================================
 CREATE TABLE IF NOT EXISTS operasional (
   id            INT AUTO_INCREMENT PRIMARY KEY,
   tanggal       DATE NOT NULL,
@@ -181,18 +150,9 @@ CREATE TABLE IF NOT EXISTS operasional (
   INDEX idx_tanggal (tanggal)
 );
 
--- =============================================
--- DATA AWAL: Akun Demo (BUKAN akun operasional toko asli)
--- Email    : demo@storeflow.app
--- Password : demo1234
--- Kredensial ini boleh dicantumkan publik di README untuk keperluan testing.
--- =============================================
 INSERT INTO users (nama, email, password, role) VALUES
 ('Demo Owner', 'demo@storeflow.app', '$2b$10$bY5KEQa0WLxEQHzt6z0xIucxBXixwa7pgi0DjQlPd8vSS1fElOJ8O', 'owner');
 
--- =============================================
--- DATA AWAL: Kategori Barang Contoh
--- =============================================
 INSERT INTO barang (kode_barang, nama, kategori, satuan, harga_beli, harga_jual, stok, stok_minimum) VALUES
 ('SMN-001', 'Semen Tiga Roda 50kg', 'Semen', 'sak',    68000,  75000, 100, 10),
 ('PSR-001', 'Pasir Beton',          'Pasir', 'm3',      200000, 250000, 50,  5),

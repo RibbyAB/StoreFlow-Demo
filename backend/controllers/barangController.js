@@ -17,14 +17,14 @@ const getAllBarang = async (req, res) => {
       const kataKata = search.trim().split(/\s+/).filter(Boolean);
 
       if (search_by === 'kode') {
-        // Kode barang: cocokkan awalan (prefix), bukan sembarang posisi -
-        // supaya cari "DE" nggak nyangkut ke "WDE-B" atau "KDE" yang cuma kebetulan mengandung "de".
+
+
         kataKata.forEach(kata => {
           query += ' AND b.kode_barang LIKE ?';
           params.push(`${kata}%`);
         });
       } else {
-        // Nama/Kategori/Semua: substring biasa, tiap kata harus cocok di salah satu kolom terpilih (AND antar-kata)
+
         const kolomMap = {
           nama:     ['b.nama'],
           kategori: ['b.kategori'],
@@ -56,13 +56,13 @@ const getAllBarang = async (req, res) => {
   }
 };
 
-// GET /api/barang/:id
+
 const getBarangById = async (req, res) => {
   try {
     const [rows] = await db.query('SELECT * FROM barang WHERE id = ?', [req.params.id]);
     if (rows.length === 0) return res.status(404).json({ success: false, message: 'Barang tidak ditemukan.' });
 
-    // Sertakan supplier list untuk barang ini
+
     const [suppliers] = await db.query(
       `SELECT s.id, s.nama FROM supplier s
        JOIN barang_supplier bs ON s.id = bs.supplier_id
@@ -76,7 +76,7 @@ const getBarangById = async (req, res) => {
   }
 };
 
-// POST /api/barang
+
 const createBarang = async (req, res) => {
   const conn = await db.getConnection();
   try {
@@ -106,7 +106,7 @@ const createBarang = async (req, res) => {
 
     const barangId = result.insertId;
 
-    // Simpan relasi supplier
+
     for (const sid of supplier_ids) {
       await conn.query(
         'INSERT IGNORE INTO barang_supplier (barang_id, supplier_id) VALUES (?, ?)',
@@ -126,7 +126,7 @@ const createBarang = async (req, res) => {
   }
 };
 
-// PUT /api/barang/:id
+
 const updateBarang = async (req, res) => {
   const conn = await db.getConnection();
   try {
@@ -157,7 +157,7 @@ const updateBarang = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Barang tidak ditemukan.' });
     }
 
-    // Update relasi supplier: hapus lama, insert baru
+
     await conn.query('DELETE FROM barang_supplier WHERE barang_id = ?', [id]);
     for (const sid of supplier_ids) {
       await conn.query(
@@ -178,7 +178,7 @@ const updateBarang = async (req, res) => {
   }
 };
 
-// DELETE /api/barang/:id
+
 const deleteBarang = async (req, res) => {
   try {
     const [result] = await db.query('DELETE FROM barang WHERE id = ?', [req.params.id]);
@@ -192,7 +192,7 @@ const deleteBarang = async (req, res) => {
   }
 };
 
-// GET /api/barang/:id/suppliers
+
 const getBarangSuppliers = async (req, res) => {
   try {
     const [rows] = await db.query(
@@ -208,8 +208,7 @@ const getBarangSuppliers = async (req, res) => {
   }
 };
 
-// GET /api/barang/:id/tren-bulanan - grafik 12 bulan terakhir buat 1 barang:
-// harga beli & harga jual rata-rata tiap bulan, total pendapatan, dan laba bersih (pendapatan - HPP)
+
 const getTrenBulanan = async (req, res) => {
   try {
     const barangId = req.params.id;
@@ -228,7 +227,7 @@ const getTrenBulanan = async (req, res) => {
 
     const hasil = [];
     for (const b of bulanList) {
-      // Harga beli rata-rata bulan itu (dari nota pembelian barang ini)
+
       const [beli] = await db.query(`
         SELECT COALESCE(AVG(dp.harga_beli), 0) AS rata_harga_beli, COALESCE(SUM(dp.qty), 0) AS total_qty_beli
         FROM detail_pembelian dp
@@ -238,7 +237,7 @@ const getTrenBulanan = async (req, res) => {
           AND MONTH(CONVERT_TZ(pb.created_at, '+00:00', '+07:00')) = ?
       `, [barangId, b.tahun, b.bulan]);
 
-      // Harga jual rata-rata, total pendapatan, & laba bersih bulan itu (dari nota penjualan barang ini, cuma yang lunas)
+
       const [jual] = await db.query(`
         SELECT
           COALESCE(AVG(dj.harga_jual), 0) AS rata_harga_jual,
@@ -253,8 +252,8 @@ const getTrenBulanan = async (req, res) => {
 
       const totalPendapatan = Number(jual[0].total_pendapatan);
       const totalQtyJual    = Number(jual[0].total_qty_jual);
-      // HPP pakai harga_beli barang SAAT INI (konsisten sama cara hitung laba-rugi di Laporan,
-      // karena detail_penjualan gak nyimpen histori harga beli pas transaksi itu terjadi)
+
+
       const hpp        = totalQtyJual * Number(barangRows[0].harga_beli_sekarang);
       const labaBersih = totalPendapatan - hpp;
 

@@ -10,7 +10,7 @@ router.use(authMiddleware);
 
 router.get('/',              getAllBarang);
 router.get('/:id',           getBarangById);
-router.get('/:id/suppliers', getBarangSuppliers);   // ← tambahan
+router.get('/:id/suppliers', getBarangSuppliers);
 router.get('/:id/tren-bulanan', getTrenBulanan);
 router.post('/',             createBarang);
 router.put('/:id',           updateBarang);

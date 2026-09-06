@@ -7,7 +7,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser]       = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Cek apakah user sudah login sebelumnya (dari localStorage)
+
   useEffect(() => {
     const savedUser  = localStorage.getItem('user');
     const savedToken = localStorage.getItem('token');
@@ -43,5 +43,5 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-// Custom hook agar mudah dipakai: const { user, logout } = useAuth();
+
 export const useAuth = () => useContext(AuthContext);

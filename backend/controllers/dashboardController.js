@@ -1,19 +1,13 @@
 const db = require('../config/database');
 
-// GET /api/dashboard
+
 const getDashboard = async (req, res) => {
   try {
-    // Hitung tanggal hari ini dalam WIB (Railway server = UTC)
-    const nowWIB = new Date(Date.now() + 7 * 60 * 60 * 1000);
-    const hariIni = nowWIB.toISOString().split('T')[0]; // format YYYY-MM-DD
 
-    // Penjualan hari ini (dibandingkan tanggal WIB)
-    // "total_transaksi": transaksi yang STATUSNYA LUNAS SEKARANG dan dibuat hari itu -- boleh lunas
-    // langsung pas dibuat ATAU lunas belakangan lewat cicilan (dua-duanya kehitung). Yang MASIH
-    // hutang (belum lunas sama sekali) TIDAK dihitung -- baru kehitung begitu beneran lunas.
-    // "total_pendapatan_lunas": HANYA transaksi yang LANGSUNG lunas pas dibuat (gak pernah ada
-    // riwayat cicilan) -- transaksi yang awalnya hutang terus dilunasin belakangan lewat cicilan
-    // dihitung lewat cicilan di bawah, pas duitnya beneran diterima.
+    const nowWIB = new Date(Date.now() + 7 * 60 * 60 * 1000);
+    const hariIni = nowWIB.toISOString().split('T')[0];
+
+
     const [[penjualanHariIni]] = await db.query(`
       SELECT
         COUNT(DISTINCT CASE
@@ -43,9 +37,7 @@ const getDashboard = async (req, res) => {
         AND p.status != 'dibatalkan'
     `, [hariIni]);
 
-    // Cicilan piutang pelanggan yang DITERIMA hari ini juga ikut dihitung ke pendapatan --
-    // konsisten sama perhitungan di Laporan > Harian (biar dua-duanya gak beda angka). Gak perlu
-    // exclude apapun -- nota yang punya riwayat cicilan udah dikecualikan total dari query di atas.
+
     const [[cicilanHariIni]] = await db.query(`
       SELECT COALESCE(SUM(jumlah), 0) AS total_cicilan
       FROM cicilan_penjualan
@@ -53,29 +45,24 @@ const getDashboard = async (req, res) => {
     `, [hariIni]);
     penjualanHariIni.total_pendapatan = Number(penjualanHariIni.total_pendapatan_lunas) + Number(cicilanHariIni.total_cicilan);
 
-    // Total barang
+
     const [[totalBarang]] = await db.query('SELECT COUNT(*) AS total FROM barang');
 
-    // Stok menipis
+
     const [[stokMenipis]] = await db.query(`
       SELECT COUNT(*) AS total
       FROM barang
       WHERE stok <= COALESCE(stok_minimum, 5)
     `);
 
-    // Hutang pelanggan yang belum lunas -- pakai SISA (total - total_dibayar), bukan total mentah,
-    // biar konsisten sama perhitungan di halaman Piutang Pelanggan (yang udah ngitung sisa setelah cicilan).
+
     const [[totalHutang]] = await db.query(`
       SELECT COUNT(*) AS total, COALESCE(SUM(total - total_dibayar), 0) AS nilai
       FROM penjualan
       WHERE status = 'belum_lunas'
     `);
 
-    // 7 hari terakhir untuk grafik — dalam WIB
-    // "jumlah_transaksi": transaksi yang STATUSNYA LUNAS SEKARANG dan dibuat hari itu -- boleh lunas
-    // langsung ATAU lunas belakangan lewat cicilan. Yang masih hutang TIDAK dihitung.
-    // "total": HANYA transaksi yang LANGSUNG lunas pas dibuat (gak pernah ada riwayat cicilan).
-    // Nama/pelanggan yang sama di hari yang sama digabung jadi 1.
+
     const [grafikRaw] = await db.query(`
       SELECT
         DATE(CONVERT_TZ(p.created_at, '+00:00', '+07:00')) AS tanggal,
@@ -108,9 +95,7 @@ const getDashboard = async (req, res) => {
       ORDER BY tanggal ASC
     `, [hariIni]);
 
-    // Cicilan piutang pelanggan per-hari dalam 7 hari terakhir, buat digabung ke grafik juga.
-    // Gak perlu exclude apapun -- nota yang punya riwayat cicilan udah dikecualikan total dari
-    // query "grafikRaw" di atas, jadi nilainya cuma numpang lewat cicilan ini doang, gak dobel.
+
     const [cicilanMingguanRaw] = await db.query(`
       SELECT tanggal, COALESCE(SUM(jumlah), 0) AS total_cicilan
       FROM cicilan_penjualan
@@ -124,8 +109,7 @@ const getDashboard = async (req, res) => {
       ])
     );
 
-    // Isi tanggal yang tidak ada transaksinya dengan 0, supaya grafik tetap tampil 7 hari penuh
-    // (bukan cuma hari yang ada penjualannya saja) -> lebih jelas polanya.
+
     const petaGrafik = new Map(
       grafikRaw.map(row => [
         (row.tanggal instanceof Date ? row.tanggal.toISOString().split('T')[0] : row.tanggal),
@@ -149,7 +133,7 @@ const getDashboard = async (req, res) => {
     const totalMinggu = grafikMingguan.reduce((s, g) => s + g.total, 0);
     const rataRataMinggu = totalMinggu / 7;
 
-    // 5 transaksi terakhir
+
     const [transaksiTerakhir] = await db.query(`
       SELECT p.id, p.total, p.metode_bayar, p.created_at,
              u.nama AS kasir,
@@ -172,7 +156,7 @@ const getDashboard = async (req, res) => {
         total_minggu:       totalMinggu,
         rata_rata_minggu:   rataRataMinggu,
         transaksi_terakhir: transaksiTerakhir,
-        tanggal_server:     hariIni  // untuk debug timezone
+        tanggal_server:     hariIni
       }
     });
 

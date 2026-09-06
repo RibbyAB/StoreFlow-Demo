@@ -8,7 +8,7 @@ const formatRp = (n) =>
 const formKosong = {
   kode_barang: '', nama: '', kategori: '', satuan: 'pcs',
   harga_beli: '', harga_jual: '', stok: '', stok_minimum: '',
-  supplier_ids: [],   // ← tambahan
+  supplier_ids: [],
 };
 
 
@@ -17,7 +17,7 @@ export default function BarangPage() {
   const [supplierList, setSupplierList] = useState([]);
   const [loading,      setLoading]      = useState(true);
   const [search,       setSearch]       = useState('');
-  const [searchBy,     setSearchBy]     = useState('semua'); // semua | nama | kode | kategori
+  const [searchBy,     setSearchBy]     = useState('semua');
   const [showForm,     setShowForm]     = useState(false);
   const [form,         setForm]         = useState(formKosong);
   const [editId,       setEditId]       = useState(null);
@@ -26,7 +26,7 @@ export default function BarangPage() {
   const [searchSupplier, setSearchSupplier] = useState('');
 
   const muat = () => {
-    if (data.length === 0) setLoading(true); // cuma tampilin loading pas awal, bukan tiap refresh abis save
+    if (data.length === 0) setLoading(true);
     const scrollEl = document.querySelector('main');
     const posisiScroll = scrollEl ? scrollEl.scrollTop : 0;
     getBarang({ search, search_by: searchBy }).then(r => {
@@ -37,7 +37,7 @@ export default function BarangPage() {
         harga_beli:    Number(item.harga_beli),
         harga_jual:    Number(item.harga_jual),
       })));
-      // Balikin posisi scroll setelah render, biar gak lompat ke atas tiap abis save/edit
+
       requestAnimationFrame(() => { if (scrollEl) scrollEl.scrollTop = posisiScroll; });
     }).finally(() => setLoading(false));
   };
@@ -51,7 +51,7 @@ export default function BarangPage() {
   const bukaForm = async (item = null) => {
     setError('');
     if (item) {
-      // Ambil supplier yg sudah terhubung ke barang ini
+
       let supplierIds = [];
       try {
         const res = await import('../../services/api').then(m => m.default.get(`/barang/${item.id}/suppliers`));
@@ -86,7 +86,7 @@ export default function BarangPage() {
 
   const simpan = async (e) => {
     e.preventDefault();
-    if (saving) return; // proteksi ekstra biar gak kepanggil dobel
+    if (saving) return;
     setSaving(true); setError('');
     const dataKirim = {
       ...form,
@@ -228,7 +228,7 @@ export default function BarangPage() {
         </table>
       </div>
 
-      {/* ── MODAL FORM ─────────────────────────────────── */}
+      {}
       {showForm && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
           <div style={{ background: '#fff', borderRadius: 12, padding: 28, width: 500, maxHeight: '92vh', overflowY: 'auto' }}>
@@ -240,16 +240,15 @@ export default function BarangPage() {
             <form
               onSubmit={simpan}
               onKeyDown={e => {
-                // Input teks/angka/tanggal udah otomatis submit form sendiri pas Enter (bawaan browser),
-                // jadi di sini cukup tangkep Enter dari checkbox aja (checkbox gak auto-submit).
-                // Kalau semua jenis input ditangkep manual di sini, input teks jadi manggil simpan() 2x sekaligus.
+
+
                 if (e.key === 'Enter' && e.target.type === 'checkbox') {
                   e.preventDefault();
                   simpan(e);
                 }
               }}
             >
-              {/* Field standar */}
+              {}
               {fields.map(f => (
                 <div key={f.key} style={{ marginBottom: 14 }}>
                   <label style={{ display: 'block', fontSize: 13, fontWeight: 500, marginBottom: 4, color: '#374151' }}>{f.label}</label>
@@ -267,7 +266,7 @@ export default function BarangPage() {
                 </div>
               ))}
 
-              {/* ── SUPPLIER (multi-select) ── */}
+              {}
               <div style={{ marginBottom: 14 }}>
                 <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', fontSize: 13, fontWeight: 500, marginBottom: 6, color: '#374151' }}>
                   <span>

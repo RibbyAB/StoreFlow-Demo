@@ -15,7 +15,7 @@ const formatRp = (n) =>
     maximumFractionDigits: 0
   }).format(n || 0);
 
-/* ─── MODAL DETAIL PELANGGAN ─────────────────────────────────── */
+
 function DetailPelangganModal({ nama, onClose }) {
   const isMobile = useIsMobile();
   const { user } = useAuth();
@@ -26,29 +26,29 @@ function DetailPelangganModal({ nama, onClose }) {
   const [selected, setSelected] = useState([]);
 
   const [cicilOpenId, setCicilOpenId] = useState(null);
-  // Terpisah dari cicilOpenId -- biar riwayat cicilan bisa diliat kapan aja tanpa harus
-  // buka form bayar cicilan dulu (sama kayak di halaman Riwayat Pembelian).
+
+
   const [riwayatOpenId, setRiwayatOpenId] = useState(null);
   const [notaId, setNotaId] = useState(null);
   const [notaNomor, setNotaNomor] = useState(null);
   const [jumlahCicil, setJumlahCicil] = useState('');
   const [metodeCicil, setMetodeCicil] = useState('tunai');
   const [savingCicil, setSavingCicil] = useState(false);
-  const [cicilanMap, setCicilanMap] = useState({}); // { [transaksiId]: [...cicilan] }
+  const [cicilanMap, setCicilanMap] = useState({});
 
   const muat = () => {
-    if (!data) setLoading(true); // cuma tampilin loading pas awal, bukan tiap refresh abis cicil/hapus
+    if (!data) setLoading(true);
     getDetailPelangganLedger(nama)
       .then(r => {
         setData(r.data);
-        // Default: semua transaksi yang belum lunas ikut tercentang
+
         setSelected(r.data.transaksi.filter(t => t.status === 'belum_lunas').map(t => t.id));
       })
       .catch(() => setError('Gagal memuat data pelanggan.'))
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => { muat(); /* eslint-disable-next-line */ }, [nama]);
+  useEffect(() => { muat();  }, [nama]);
 
   const toggleSelect = (id) => {
     setSelected(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
@@ -65,8 +65,7 @@ function DetailPelangganModal({ nama, onClose }) {
     muatCicilan(transaksiId);
   };
 
-  // "Lunasi Semua" -> buka panel cicil yang sama, jumlahnya otomatis diisi penuh (sisa piutang),
-  // biar bisa milih metode pembayaran juga (gak perlu bikin form kepisah).
+
   const bukaLunasiSemua = (t) => {
     const sisa = Number(t.total) - Number(t.total_dibayar || 0);
     setCicilOpenId(t.id);
@@ -75,7 +74,7 @@ function DetailPelangganModal({ nama, onClose }) {
     muatCicilan(t.id);
   };
 
-  // Buka/tutup riwayat cicilan doang, TANPA buka form bayar -- biar bisa sekadar diliat.
+
   const toggleRiwayat = (transaksiId) => {
     if (riwayatOpenId === transaksiId) {
       setRiwayatOpenId(null);
@@ -85,8 +84,7 @@ function DetailPelangganModal({ nama, onClose }) {
     muatCicilan(transaksiId);
   };
 
-  // Selalu ambil data terbaru dari server (jangan andalkan cache lama),
-  // biar riwayat cicilan gak "kadang muncul kadang enggak" gara-gara data basi.
+
   const muatCicilan = (transaksiId) => {
     getCicilanPenjualan(transaksiId)
       .then(r => setCicilanMap(prev => ({ ...prev, [transaksiId]: r.data.data || [] })))
@@ -112,7 +110,7 @@ function DetailPelangganModal({ nama, onClose }) {
       if (res.data.lunas) {
         setCicilOpenId(null);
       } else {
-        muatCicilan(t.id); // langsung refresh riwayat biar cicilan yang baru ke-simpan langsung kelihatan
+        muatCicilan(t.id);
       }
       muat();
     } catch (err) {
@@ -149,7 +147,7 @@ function DetailPelangganModal({ nama, onClose }) {
     try {
       await hapusCicilanPenjualan(transaksiId, cicilanId);
       toast.success('Cicilan berhasil dihapus.', { position: 'top-center' });
-      muatCicilan(transaksiId); // langsung refresh biar sisa riwayatnya kelihatan (bukan hilang semua)
+      muatCicilan(transaksiId);
       muat();
     } catch (err) {
       toast.error(err.response?.data?.message || 'Gagal menghapus cicilan.', { position: 'top-center' });
@@ -306,8 +304,8 @@ function DetailPelangganModal({ nama, onClose }) {
                   <React.Fragment key={t.id}>
                     <div
                       onClick={e => {
-                        // Card bisa diklik di mana aja buat centang, kecuali pas ngeklik tombol/checkbox
-                        // itu sendiri (biar gak toggle dobel / gak sengaja mencet tombol Nota-Cicil).
+
+
                         if (t.status !== 'belum_lunas') return;
                         if (e.target.closest('button') || e.target.tagName === 'INPUT') return;
                         toggleSelect(t.id);
@@ -440,8 +438,7 @@ function DetailPelangganModal({ nama, onClose }) {
                       </div>
                     )}
 
-                    {/* Panel "cuma liat riwayat" -- terpisah dari panel bayar cicilan di atas, jadi
-                        bisa diliat kapan aja tanpa perlu buka form bayar. Sama kayak di Riwayat Pembelian. */}
+                    {}
                     {riwayatOpenId === t.id && cicilOpenId !== t.id && (
                       <div style={{
                         padding: '8px 14px 12px', background: '#f5f3ff',
@@ -517,7 +514,7 @@ function DetailPelangganModal({ nama, onClose }) {
   );
 }
 
-/* ─── HALAMAN UTAMA ───────────────────────────────────────────── */
+
 export default function PelangganLedgerPage() {
   const isMobile = useIsMobile();
   const [list, setList] = useState([]);
@@ -527,7 +524,7 @@ export default function PelangganLedgerPage() {
   const [selectedNama, setSelectedNama] = useState(null);
 
   const muatData = () => {
-    if (list.length === 0) setLoading(true); // cuma tampilin loading pas awal, bukan tiap refresh
+    if (list.length === 0) setLoading(true);
     const scrollEl = document.querySelector('main');
     const posisiScroll = scrollEl ? scrollEl.scrollTop : 0;
     getDaftarPelangganLedger()

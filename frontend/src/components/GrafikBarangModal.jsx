@@ -12,7 +12,7 @@ const formatRpShort = (n) => {
   return String(v);
 };
 
-/* ─── MODAL GRAFIK BULANAN PER BARANG ────────────────────────── */
+
 export default function GrafikBarangModal({ barangId, onClose }) {
   const [data, setData] = useState([]);
   const [namaBarang, setNamaBarang] = useState('');

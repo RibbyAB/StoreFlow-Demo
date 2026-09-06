@@ -1,11 +1,11 @@
 const db = require('../config/database');
 
-// GET /api/pengaturan -- siapapun yang login boleh baca (dibutuhin buat render nota/sidebar)
+
 const getPengaturan = async (req, res) => {
   try {
     const [rows] = await db.query('SELECT * FROM pengaturan WHERE id = 1');
     if (rows.length === 0) {
-      // Jaga-jaga kalau migrasinya belum sempet ngisi baris default
+
       return res.json({
         success: true,
         data: {
@@ -21,7 +21,7 @@ const getPengaturan = async (req, res) => {
   }
 };
 
-// PUT /api/pengaturan -- cuma owner yang boleh ubah
+
 const updatePengaturan = async (req, res) => {
   try {
     const { nama_toko, alamat, telepon, footer_nota1, footer_nota2 } = req.body;

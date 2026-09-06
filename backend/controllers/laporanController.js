@@ -1,28 +1,21 @@
 const db = require('../config/database');
 
-// Helper timezone WIB — Railway server UTC, toko di WIB (UTC+7)
+
 const WIB = `CONVERT_TZ(created_at, '+00:00', '+07:00')`;
 const dateWIB = `DATE(CONVERT_TZ(created_at, '+00:00', '+07:00'))`;
 
-// GET /api/laporan/penjualan-harian?tanggal=2026-05-23
+
 const laporanHarian = async (req, res) => {
   try {
-    // Jika tidak ada tanggal, pakai hari ini dalam WIB
+
     const tanggal = req.query.tanggal || (() => {
       const now = new Date();
-      // Konversi ke WIB
+
       const wib = new Date(now.getTime() + 7 * 60 * 60 * 1000);
       return wib.toISOString().split('T')[0];
     })();
 
-    // "total_transaksi": transaksi yang STATUSNYA LUNAS SEKARANG dan dibuat hari itu -- boleh lunas
-    // langsung pas dibuat ATAU lunas belakangan lewat cicilan (dua-duanya kehitung). Yang MASIH
-    // hutang (belum lunas sama sekali) TIDAK dihitung -- baru kehitung begitu beneran lunas.
-    // Nama/pelanggan yang sama di hari itu digabung jadi 1.
-    // "total_pendapatan_lunas": HANYA transaksi yang LANGSUNG lunas pas dibuat (gak pernah ada riwayat
-    // cicilan sama sekali) -- transaksi yang awalnya hutang terus dilunasin belakangan lewat cicilan
-    // TIDAK dihitung di sini, nilainya baru dihitung lewat cicilan di bawah, pas duitnya beneran
-    // diterima (bukan pas notanya dibuat), biar gak dobel/nyasar ke hari yang salah.
+
     const [ringkasan] = await db.query(`
       SELECT
         COUNT(DISTINCT CASE
@@ -52,10 +45,7 @@ const laporanHarian = async (req, res) => {
         AND p.status != 'dibatalkan'
     `, [tanggal]);
 
-    // Cicilan piutang pelanggan yang DITERIMA hari ini (bisa dari nota hutang hari sebelumnya juga) --
-    // ini duit yang beneran masuk hari ini, jadi ikut dijumlahkan ke Pendapatan hari ini. Gak perlu
-    // exclude apapun di sini, soalnya transaksi yang punya riwayat cicilan udah dikecualikan total
-    // dari query "ringkasan" di atas -- jadi nilainya cuma numpang lewat cicilan ini doang, gak dobel.
+
     const [cicilanHariIni] = await db.query(`
       SELECT COALESCE(SUM(jumlah), 0) AS total_cicilan
       FROM cicilan_penjualan
@@ -64,10 +54,7 @@ const laporanHarian = async (req, res) => {
 
     ringkasan[0].total_pendapatan = Number(ringkasan[0].total_pendapatan_lunas) + Number(cicilanHariIni[0].total_cicilan);
 
-    // HPP (harga pokok penjualan) hari itu:
-    // 1) dari transaksi yang LANGSUNG lunas hari itu, gak pernah ada riwayat cicilan (HPP penuh)
-    // 2) + HPP proporsional dari cicilan yang diterima hari ini (biar modal barangnya ikut kepotong
-    //    sesuai persentase yang udah dibayar, bukan cicilan-nya masuk full ke laba kotor tanpa modal)
+
     const [hppHarian] = await db.query(`
       SELECT COALESCE(SUM(dp.qty * dp.harga_beli), 0) AS total_hpp
       FROM detail_penjualan dp
@@ -133,7 +120,7 @@ const laporanHarian = async (req, res) => {
   }
 };
 
-// GET /api/laporan/laba-rugi?bulan=2026-05
+
 const labaRugi = async (req, res) => {
   try {
     const bulan = req.query.bulan || (() => {
@@ -143,9 +130,7 @@ const labaRugi = async (req, res) => {
     })();
     const [tahun, bln] = bulan.split('-');
 
-    // "total_penjualan": HANYA transaksi yang LANGSUNG lunas pas dibuat (gak pernah ada riwayat
-    // cicilan sama sekali). Transaksi yang awalnya hutang terus dilunasin belakangan lewat cicilan
-    // TIDAK dihitung di sini -- nilainya dihitung lewat cicilan di bawah, pas duitnya beneran diterima.
+
     const [penjualan] = await db.query(`
       SELECT COALESCE(SUM(p.total), 0) AS total_penjualan
       FROM penjualan p
@@ -166,7 +151,7 @@ const labaRugi = async (req, res) => {
         AND NOT EXISTS (SELECT 1 FROM cicilan_penjualan cp WHERE cp.penjualan_id = p.id)
     `, [tahun, bln]);
 
-    // Sama polanya buat sisi Pembelian -- HANYA nota yang LANGSUNG lunas pas dibuat, gak pernah dicicil.
+
     const [pembelian] = await db.query(`
       SELECT COALESCE(SUM(p.total), 0) AS total_pembelian
       FROM pembelian p
@@ -176,23 +161,21 @@ const labaRugi = async (req, res) => {
         AND NOT EXISTS (SELECT 1 FROM cicilan_pembelian cp WHERE cp.pembelian_id = p.id)
     `, [tahun, bln]);
 
-    // Cicilan hutang ke supplier yang dibayar bulan ini -- gak perlu exclude apapun, soalnya nota
-    // yang punya riwayat cicilan udah dikecualikan total dari query "pembelian" di atas, jadi nilainya
-    // cuma numpang lewat cicilan ini doang, gak dobel.
+
     const [cicilanPembelianBulanIni] = await db.query(`
       SELECT COALESCE(SUM(jumlah), 0) AS total_cicilan
       FROM cicilan_pembelian
       WHERE YEAR(tanggal) = ? AND MONTH(tanggal) = ?
     `, [tahun, bln]);
 
-    // Cicilan piutang dari pelanggan yang dibayar bulan ini -- sama, gak perlu exclude apapun lagi.
+
     const [cicilanPenjualanBulanIni] = await db.query(`
       SELECT COALESCE(SUM(jumlah), 0) AS total_cicilan
       FROM cicilan_penjualan
       WHERE YEAR(tanggal) = ? AND MONTH(tanggal) = ?
     `, [tahun, bln]);
 
-    // Piutang yang belum dibayar bulan ini
+
     const [piutang] = await db.query(`
       SELECT COALESCE(SUM(total), 0) AS total_piutang
       FROM penjualan
@@ -201,16 +184,14 @@ const labaRugi = async (req, res) => {
         AND status = 'belum_lunas'
     `, [tahun, bln]);
 
-    // Operasional bulan ini (gaji, listrik, pajak, makan, biaya lain) -- BUKAN pembelian stok
+
     const [operasional] = await db.query(`
       SELECT COALESCE(SUM(jumlah), 0) AS total_operasional
       FROM operasional
       WHERE YEAR(tanggal) = ? AND MONTH(tanggal) = ?
     `, [tahun, bln]);
 
-    // HPP proporsional dari cicilan piutang yang diterima bulan ini (biar modal barangnya ikut kepotong
-    // sesuai persentase yang udah dibayar, bukan cicilan-nya masuk full ke laba kotor tanpa modal).
-    // Gak perlu exclude apapun -- nota yang punya riwayat cicilan udah dikecualikan total dari query "hpp" di atas.
+
     const [hppCicilanBulanIni] = await db.query(`
       SELECT COALESCE(SUM(cp.jumlah * (hpp_tx.total_hpp / p.total)), 0) AS total_hpp_cicilan
       FROM cicilan_penjualan cp
@@ -251,7 +232,7 @@ const labaRugi = async (req, res) => {
   }
 };
 
-// GET /api/laporan/stok-menipis
+
 const stokMenipis = async (req, res) => {
   try {
     const [rows] = await db.query(`
@@ -266,7 +247,7 @@ const stokMenipis = async (req, res) => {
   }
 };
 
-// GET /api/laporan/barang-terlaris?tahun=2026&bulan=5
+
 const barangTerlaris = async (req, res) => {
   try {
     const tahun = req.query.tahun || new Date().getFullYear();
@@ -289,9 +270,7 @@ const barangTerlaris = async (req, res) => {
       GROUP BY b.id, b.nama, b.satuan
     `, [tahun, bulan]);
 
-    // Kontribusi proporsional dari cicilan yang diterima bulan ini -- biar "Barang Terlaris" konsisten
-    // sama "Total Penjualan" di Ringkasan. Gak perlu exclude apapun, nota yang punya riwayat cicilan
-    // udah dikecualikan total dari query di atas.
+
     const [cicilanRows] = await db.query(`
       SELECT
         b.id, b.nama, b.satuan,
@@ -305,7 +284,7 @@ const barangTerlaris = async (req, res) => {
       GROUP BY b.id, b.nama, b.satuan
     `, [tahun, bulan]);
 
-    // Gabungkan dua sumber di atas per barang_id
+
     const gabungan = {};
     for (const r of rows) {
       gabungan[r.id] = {

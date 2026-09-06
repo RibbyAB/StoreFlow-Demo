@@ -2,7 +2,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const db = require('../config/database');
 
-// POST /api/auth/login
+
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -11,7 +11,7 @@ const login = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Email dan password wajib diisi.' });
     }
 
-    // Cari user di database
+
     const [rows] = await db.query('SELECT * FROM users WHERE email = ? AND aktif = 1', [email]);
     if (rows.length === 0) {
       return res.status(401).json({ success: false, message: 'Email atau password salah.' });
@@ -19,12 +19,7 @@ const login = async (req, res) => {
 
     const user = rows[0];
 
-    // Cek password.
-    // CATATAN KEAMANAN: sebelumnya ada fallback `password === user.password` tanpa syarat,
-    // yang berarti siapa pun yang tahu HASH bcrypt seseorang (mis. dari kebocoran DB) bisa
-    // login cukup dengan mengetik hash itu sebagai password. Sekarang fallback plaintext
-    // hanya dipakai kalau nilai di DB memang BUKAN hash bcrypt (akun lama yang belum di-hash),
-    // dan begitu match, langsung di-upgrade ke hash supaya celah ini tertutup permanen.
+
     const isBcryptHash = /^\$2[aby]\$/.test(user.password || '');
     let isMatch = false;
     try {
@@ -34,7 +29,7 @@ const login = async (req, res) => {
     }
     if (!isMatch && !isBcryptHash && password === user.password) {
       isMatch = true;
-      // Upgrade otomatis ke bcrypt hash supaya login berikutnya sudah aman
+
       const upgraded = await bcrypt.hash(password, 10);
       await db.query('UPDATE users SET password = ? WHERE id = ?', [upgraded, user.id]);
     }
@@ -42,7 +37,7 @@ const login = async (req, res) => {
       return res.status(401).json({ success: false, message: 'Email atau password salah.' });
     }
 
-    // Buat JWT token
+
     const token = jwt.sign(
       { id: user.id, nama: user.nama, role: user.role },
       process.env.JWT_SECRET,
@@ -62,7 +57,7 @@ const login = async (req, res) => {
   }
 };
 
-// POST /api/auth/register (hanya owner yang bisa buat akun baru)
+
 const register = async (req, res) => {
   try {
     const { nama, email, password, role } = req.body;
@@ -71,13 +66,13 @@ const register = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Nama, email, dan password wajib diisi.' });
     }
 
-    // Cek email sudah ada?
+
     const [existing] = await db.query('SELECT id FROM users WHERE email = ?', [email]);
     if (existing.length > 0) {
       return res.status(409).json({ success: false, message: 'Email sudah terdaftar.' });
     }
 
-    // Hash password
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
     await db.query(
@@ -93,7 +88,7 @@ const register = async (req, res) => {
   }
 };
 
-// GET /api/auth/me - cek data user yang sedang login
+
 const getMe = async (req, res) => {
   try {
     const [rows] = await db.query(

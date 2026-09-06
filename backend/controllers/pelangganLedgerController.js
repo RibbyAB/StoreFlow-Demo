@@ -1,8 +1,6 @@
 const db = require('../config/database');
 
-// GET /api/pelanggan-ledger
-// Daftar pelanggan (nama tidak kosong & bukan "umum") dengan rekap transaksi mereka.
-// Pencocokan nama: case-insensitive & abaikan spasi berlebih (TRIM + LOWER).
+
 const getDaftarPelanggan = async (req, res) => {
   try {
     const [rows] = await db.query(`
@@ -33,9 +31,7 @@ const getDaftarPelanggan = async (req, res) => {
   }
 };
 
-// GET /api/pelanggan-ledger/:nama
-// Detail semua transaksi milik satu pelanggan (dicocokkan case-insensitive + trim),
-// diurutkan lama -> baru, dengan saldo berjalan (running balance).
+
 const getDetailPelanggan = async (req, res) => {
   try {
     const nama = (req.params.nama || '').trim();
@@ -64,16 +60,14 @@ const getDetailPelanggan = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Tidak ada transaksi untuk pelanggan ini.' });
     }
 
-    // Hitung saldo berjalan: setiap transaksi menambah total belanja,
-    // kalau statusnya 'lunas' dianggap sudah dibayar saat itu juga. Kalau masih 'belum_lunas'
-    // tapi sudah dicicil sebagian, cuma sisanya (total - total_dibayar) yang nambah saldo hutang.
+
     let saldoBerjalan = 0;
     const transaksiDenganSaldo = transaksi.map(t => {
       if (t.status === 'belum_lunas') {
         saldoBerjalan += Number(t.total) - Number(t.total_dibayar || 0);
       }
       return { ...t, saldo_berjalan: saldoBerjalan };
-    }).reverse(); // tampilkan terbaru dulu di frontend
+    }).reverse();
 
     const totalBelanja = transaksi.reduce((s, t) => s + Number(t.total), 0);
     const totalHutang   = transaksi
@@ -83,7 +77,7 @@ const getDetailPelanggan = async (req, res) => {
 
     res.json({
       success: true,
-      nama_pelanggan: transaksi[transaksi.length - 1].nama_pelanggan, // penulisan nama terbaru
+      nama_pelanggan: transaksi[transaksi.length - 1].nama_pelanggan,
       ringkasan: {
         total_transaksi: transaksi.length,
         total_belanja:   totalBelanja,

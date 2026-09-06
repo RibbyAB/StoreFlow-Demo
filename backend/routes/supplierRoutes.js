@@ -1,4 +1,4 @@
-// routes/supplierRoutes.js
+
 const express = require('express');
 const router = express.Router();
 const db = require('../config/database');
@@ -34,7 +34,7 @@ router.delete('/:id', async (req, res) => {
   res.json({ success: true, message: 'Supplier berhasil dihapus.' });
 });
 
-// PUT /api/supplier/:id/barang - set barang mana aja yang disupply supplier ini (assign banyak barang sekaligus)
+
 router.put('/:id/barang', async (req, res) => {
   const conn = await db.getConnection();
   try {

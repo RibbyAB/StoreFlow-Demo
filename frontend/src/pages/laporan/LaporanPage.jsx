@@ -8,7 +8,7 @@ import NotaModal from '../../components/NotaModal';
 import { Toaster, toast } from 'react-hot-toast';
 import useIsMobile from '../../hooks/useIsMobile';
 
-/* ─── HELPERS ─────────────────────────────────────────────────── */
+
 const formatRp = (n) =>
   new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(n || 0);
 
@@ -33,9 +33,7 @@ const getTodayLocal = () => {
 const todayStr = getTodayLocal();
 const bulanStr = getTodayLocal().slice(0, 7);
 
-/* ─── DOWNLOAD HELPERS ────────────────────────────────────────── */
 
-/** Konversi array-of-objects ke string CSV dan trigger download */
 const downloadCSV = (rows, filename) => {
   if (!rows || rows.length === 0) return;
   const headers = Object.keys(rows[0]);
@@ -57,7 +55,7 @@ const downloadCSV = (rows, filename) => {
   URL.revokeObjectURL(url);
 };
 
-/** Buka jendela cetak berisi rekap harian (plain HTML) */
+
 const cetakRekapHarian = (harian, tanggal) => {
   if (!harian) return;
   const r   = harian.ringkasan || {};
@@ -107,7 +105,7 @@ const cetakRekapHarian = (harian, tanggal) => {
     }
 
     h1{
-    font-size: 18px; 
+    font-size: 18px;
     margin-bottom: 2px
     }
 
@@ -116,7 +114,7 @@ const cetakRekapHarian = (harian, tanggal) => {
     color: #64748b;
     margin-bottom: 18px
     }
-    
+
     .grid{
     display: grid;
     grid-template-columns: repeat(3,1fr);
@@ -186,7 +184,7 @@ const cetakRekapHarian = (harian, tanggal) => {
 
     @media print{body{padding:14px 18px}}
   </style></head><body>
-  
+
   <h1>Rekap Penjualan Harian</h1>
   <div class="sub">📅 ${tglLabel} &nbsp;|&nbsp; Dicetak: ${new Date().toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' })} WIB</div>
   <div class="grid">
@@ -211,7 +209,7 @@ const cetakRekapHarian = (harian, tanggal) => {
   setTimeout(() => { w.print(); w.close(); }, 400);
 };
 
-/** Buka jendela cetak berisi laporan laba rugi bulanan */
+
 const cetakLabaRugiBulanan = (labaRugi, bulan, tren12) => {
   if (!labaRugi) return;
   const fmt = (n) =>
@@ -354,7 +352,7 @@ const cetakLabaRugiBulanan = (labaRugi, bulan, tren12) => {
   setTimeout(() => { w.print(); w.close(); }, 400);
 };
 
-/* ─── SUB-COMPONENTS ──────────────────────────────────────────── */
+
 const KartuMetrik = ({ label, nilai, sub, icon, warna, trend }) => {
   const isMobile = useIsMobile();
   return (
@@ -396,10 +394,7 @@ const TooltipRp = ({ active, payload, label }) => {
   );
 };
 
-/* ─── NOTA MODAL ──────────────────────────────────────────────── */
-/* ─── NOTA MODAL ─── (dipindah ke components/NotaModal.jsx, dipakai bareng sama Piutang Pelanggan) ── */
 
-/* ─── MAIN PAGE ───────────────────────────────────────────────── */
 const KATEGORI_OPERASIONAL = [
   { value: 'gaji',    label: '👤 Gaji Karyawan' },
   { value: 'listrik', label: '💡 Listrik' },
@@ -419,7 +414,7 @@ function OperasionalSection({ bulan, onChanged }) {
   const [form, setForm] = useState({ tanggal: '', kategori: 'lain', keterangan: '', jumlah: '' });
 
   const muat = () => {
-    if (list.length === 0) setLoading(true); // cuma tampilin loading pas awal, bukan tiap refresh abis catat/hapus
+    if (list.length === 0) setLoading(true);
     const scrollEl = document.querySelector('main');
     const posisiScroll = scrollEl ? scrollEl.scrollTop : 0;
     getOperasional(bulan)
@@ -432,7 +427,7 @@ function OperasionalSection({ bulan, onChanged }) {
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => { muat(); /* eslint-disable-next-line */ }, [bulan]);
+  useEffect(() => { muat();  }, [bulan]);
 
   const bukaForm = () => {
     const wib = new Date(Date.now() + 7 * 60 * 60 * 1000);
@@ -586,17 +581,17 @@ export default function LaporanPage() {
 
   const muatHarian = useCallback(async (tgl) => {
     setLoad('hr', true);
-    try { 
-      const res = await getLaporanHarian(tgl); 
+    try {
+      const res = await getLaporanHarian(tgl);
       setHarian(res.data);
       setListPenjualan(res.data.transaksi || []);
 
-      } catch (err) { 
+      } catch (err) {
       console.error("Gagal muat data harian:", err);
       setHarian(null);
-      setListPenjualan([]); 
-    } finally { 
-      setLoad('hr', false); 
+      setListPenjualan([]);
+    } finally {
+      setLoad('hr', false);
     }
   }, []);
 
@@ -630,7 +625,7 @@ export default function LaporanPage() {
     } finally { setLoad('tren', false); }
   }, []);
 
-  // Grafik harian dalam 1 bulan yang dipilih (tanggal 1 s/d akhir bulan), ngikutin periode di atas
+
   const muatTrenHarianBulan = useCallback(async (b) => {
     setLoad('trenHarian', true);
     try {
@@ -642,14 +637,14 @@ export default function LaporanPage() {
         const hari = i + 1;
         const tgl = `${tahun}-${bln}-${String(hari).padStart(2, '0')}`;
         if (tgl > hariIniStr) {
-          // Tanggal di masa depan (belum terjadi) -> jangan di-fetch, langsung 0
+
           return Promise.resolve({ tanggal: hari, pendapatan: 0, labaKotor: 0, transaksi: 0, belumTerjadi: true });
         }
         return getLaporanHarian(tgl)
           .then(r => ({
             tanggal:    hari,
             pendapatan: Number(r.data.ringkasan?.total_pendapatan) || 0,
-            labaKotor:  Number(r.data.ringkasan?.pendapatan_bersih) || 0, // nama field di backend agak nyasar, ini sebenarnya laba kotor harian
+            labaKotor:  Number(r.data.ringkasan?.pendapatan_bersih) || 0,
             transaksi:  Number(r.data.ringkasan?.total_transaksi)  || 0,
           }))
           .catch(() => ({ tanggal: hari, pendapatan: 0, labaKotor: 0, transaksi: 0 }));
@@ -676,14 +671,14 @@ export default function LaporanPage() {
     { key: 'harian',    icon: '📋', label: 'Harian' },
     { key: 'stok',      icon: '⚠️', label: 'Stok Menipis' },
     { key: 'piutang',   icon: '🧾', label: 'Piutang Pelanggan' },
-  ];  
+  ];
 
   const [listPenjualan, setListPenjualan] = useState([]);
 
   const loadData = async () => {
     try {
       const res = await api.get(`/laporan/penjualan-harian?tanggal=${todayStr}`);
-      console.log("Respon dari Backend:", res.data); 
+      console.log("Respon dari Backend:", res.data);
 
       if (res.data && res.data.transaksi) {
         setListPenjualan(res.data.transaksi);
@@ -697,13 +692,13 @@ export default function LaporanPage() {
 
   return (
     <div>
-      {/* ── Header ─────────────────────────────────────────────── */}
+      {}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 10 }}>
         <h2 style={{ margin: 0, color: '#1e293b', fontSize: 20 }}>📊 Laporan Keuangan</h2>
         <div style={{ fontSize: 13, color: '#64748b' }}>Hanya bisa diakses oleh <strong>Owner</strong></div>
       </div>
 
-      {/* ── Tab Nav ────────────────────────────────────────────── */}
+      {}
       <div style={{ display: 'flex', gap: 6, marginBottom: 24, background: '#f1f5f9', borderRadius: 10, padding: 4, overflowX: 'auto', maxWidth: '100%' }}>
         {tabs.map(t => (
           <button key={t.key} onClick={() => setTab(t.key)} style={{
@@ -716,9 +711,7 @@ export default function LaporanPage() {
         ))}
       </div>
 
-      {/* ══════════════════════════════════════════════════════════
-          TAB: RINGKASAN
-      ══════════════════════════════════════════════════════════ */}
+      {}
       {tab === 'ringkasan' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
 
@@ -772,13 +765,11 @@ export default function LaporanPage() {
         </div>
       )}
 
-      {/* ══════════════════════════════════════════════════════════
-          TAB: BULANAN
-      ══════════════════════════════════════════════════════════ */}
+      {}
       {tab === 'bulanan' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
 
-          {/* Filter bulan + Download toolbar */}
+          {}
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
             <span style={{ fontSize: 13, color: '#64748b' }}>Periode:</span>
             <input type="month" value={bulan} onChange={e => setBulan(e.target.value)} max={bulanStr}
@@ -786,7 +777,7 @@ export default function LaporanPage() {
             />
 
             <div style={{ display: 'flex', gap: 8, marginLeft: 'auto', flexWrap: 'wrap' }}>
-              {/* CSV tren 12 bulan */}
+              {}
               <button
                 onClick={() => {
                   const rows = [...tren12].reverse().map((row) => ({
@@ -805,7 +796,7 @@ export default function LaporanPage() {
                 onMouseLeave={e => e.currentTarget.style.background='#eff6ff'}
               >⬇️ CSV Tren 12 Bulan</button>
 
-              {/* CSV ringkasan laba rugi bulan dipilih */}
+              {}
               {labaRugi && (
                 <button
                   onClick={() => {
@@ -826,7 +817,7 @@ export default function LaporanPage() {
                 >⬇️ CSV Laba Rugi</button>
               )}
 
-              {/* Cetak laporan bulanan */}
+              {}
               <button
                 onClick={() => cetakLabaRugiBulanan(labaRugi, bulan, tren12)}
                 disabled={!labaRugi}
@@ -837,14 +828,14 @@ export default function LaporanPage() {
             </div>
           </div>
 
-          {/* Grafik harian dalam bulan yang dipilih (ngikutin Periode di atas) */}
+          {}
           <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 14, padding: isMobile ? 16 : 24 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4, flexWrap: 'wrap', gap: 8 }}>
               <SectionTitle>📆 Pendapatan & Laba Harian — {bulanList[parseInt(bulan.split('-')[1]) - 1]} {bulan.split('-')[0]}</SectionTitle>
               {!loading.trenHarian && trenHarianBulan.length > 0 && (() => {
                 const totalPendapatan = trenHarianBulan.reduce((s, r) => s + Number(r.pendapatan), 0);
-                // Bagi dengan hari yang UDAH KEJADIAN aja (bukan seluruh hari di bulan itu) -- biar gak
-                // keliatan rata-ratanya kecil banget kalau bulannya masih berjalan/belum kelar.
+
+
                 const hariSudahLewat = trenHarianBulan.filter(r => !r.belumTerjadi).length || trenHarianBulan.length;
                 const rataRata = totalPendapatan / hariSudahLewat;
                 return (
@@ -905,7 +896,7 @@ export default function LaporanPage() {
             })()}
           </div>
 
-          {/* Bar chart tren 12 bulan */}
+          {}
           <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 14, padding: isMobile ? 16 : 24 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8, flexWrap: 'wrap', gap: 8 }}>
               <SectionTitle>📈 Tren Penjualan & Laba 12 Bulan Terakhir</SectionTitle>
@@ -943,7 +934,7 @@ export default function LaporanPage() {
             )}
           </div>
 
-          {/* Tabel rekap */}
+          {}
           <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 14, overflow: 'auto' }}>
             <div style={{ padding: '18px 24px', borderBottom: '1px solid #f1f5f9' }}>
               <SectionTitle>📋 Tabel Rekap 12 Bulan</SectionTitle>
@@ -982,7 +973,7 @@ export default function LaporanPage() {
             </table>
           </div>
 
-          {/* Barang Terlaris bulan ini */}
+          {}
           <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 14, overflow: 'auto' }}>
             <div style={{ padding: '18px 24px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
               <SectionTitle>🏆 Barang Terlaris — {bulanList[parseInt(bulan.split('-')[1]) - 1]} {bulan.split('-')[0]}</SectionTitle>
@@ -1035,13 +1026,11 @@ export default function LaporanPage() {
         </div>
       )}
 
-      {/* ══════════════════════════════════════════════════════════
-          TAB: HARIAN
-      ══════════════════════════════════════════════════════════ */}
+      {}
       {tab === 'harian' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
 
-          {/* Filter tanggal + Download toolbar */}
+          {}
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
             <span style={{ fontSize: 13, color: '#64748b' }}>Tanggal:</span>
             <input type="date" value={tanggal} onChange={e => setTanggal(e.target.value)} max={todayStr}
@@ -1052,15 +1041,15 @@ export default function LaporanPage() {
                 setTanggal(dateNow);
                 muatHarian(dateNow);
               }}
-              
-              style={{ 
-                padding: '7px 14px', 
-                background: '#f1f5f9', 
-                border: 'none', 
-                borderRadius: 8, 
-                cursor: 'pointer', 
-                fontSize: 13, 
-                color: '#64748b' 
+
+              style={{
+                padding: '7px 14px',
+                background: '#f1f5f9',
+                border: 'none',
+                borderRadius: 8,
+                cursor: 'pointer',
+                fontSize: 13,
+                color: '#64748b'
               }}
             >Hari Ini</button>
 
@@ -1115,7 +1104,7 @@ export default function LaporanPage() {
             <div style={{ padding: 48, textAlign: 'center', color: '#94a3b8' }}>Memuat data harian...</div>
           ) : harian ? (
             <>
-              {/* Kartu ringkasan */}
+              {}
               <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: 16 }}>
                 <KartuMetrik icon="🛒" label="Total Transaksi"       nilai={harian.ringkasan?.total_transaksi || 0}          sub="transaksi hari ini"   warna="#3b82f6" />
                 <KartuMetrik icon="💵" label="Total Pendapatan"      nilai={formatRp(harian.ringkasan?.total_pendapatan)}    sub="dari semua transaksi" warna="#10b981" />
@@ -1124,7 +1113,7 @@ export default function LaporanPage() {
 
               <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 20, alignItems: 'start' }}>
 
-                {/* Tabel transaksi */}
+                {}
                  <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 14, overflow: 'auto', minWidth: 0 }}>
                   <div style={{ padding: '15px 20px', borderBottom: '1px solid #f1f5f9' }}>
                     <SectionTitle>🧾 Rincian Transaksi</SectionTitle>
@@ -1152,7 +1141,7 @@ export default function LaporanPage() {
                             <td style={{ padding: '12px 32px', color: '#94a3b8', fontFamily: 'monospace', fontSize: 12 }}>{(harian.transaksi || []).length - i}</td>
                             <td style={{ padding: '12px 14px', fontWeight: 500 }}>{t.nama_pelanggan || t.pelanggan || 'Umum'}</td>
                             <td style={{ padding: '12px 12px' }}>
-                              {/* FIX: badge metode pembayaran — gunakan warna unik per metode */}
+                              {}
                               <span style={{
                                 background:
                                   t.metode_bayar === 'tunai'    ? '#f0fdf4' :
@@ -1178,7 +1167,7 @@ export default function LaporanPage() {
                                 }}>
                                   🧾 Lihat Nota
                                 </button>
-                                {/* FIX: gunakan field `status` dari DB, bukan metode_bayar */}
+                                {}
                                 {t.status === 'dibatalkan' ? (
                                   <span style={{ color: '#dc2626', fontSize: 12, fontWeight: 500, textAlign: 'center' }}>❌ Dibatalkan</span>
                                 ) : t.metode_bayar === 'hutang' ? (
@@ -1199,14 +1188,14 @@ export default function LaporanPage() {
                   )}
                 </div>
 
-                {/* Pie chart barang terjual */}
+                {}
                 <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 14, overflow: 'auto', minWidth: 0 }}>
                   <div style={{ padding: '16px 20px', borderBottom: '1px solid #f1f5f9' }}>
                     <SectionTitle>📦 Barang Terjual</SectionTitle>
                   </div>
                   {harian.barang_terjual?.length > 0 ? (
                     <>
-                      {/* ✅ wrapper div dengan height eksplisit — kunci agar pie chart muncul */}
+                      {}
                       <div style={{ width: '100%', height: 180 }}>
                         <ResponsiveContainer width="100%" height="100%">
                           <PieChart>
@@ -1259,7 +1248,7 @@ export default function LaporanPage() {
                   )}
                 </div>
 
-              </div>{/* end grid 2 col */}
+              </div>{}
             </>
           ) : (
             <div style={{ padding: 32, textAlign: 'center', color: '#94a3b8', fontSize: 13 }}>
@@ -1270,9 +1259,7 @@ export default function LaporanPage() {
         </div>
       )}
 
-      {/* ══════════════════════════════════════════════════════════
-          TAB: STOK MENIPIS
-      ══════════════════════════════════════════════════════════ */}
+      {}
       {tab === 'stok' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 
@@ -1341,12 +1328,10 @@ export default function LaporanPage() {
         </div>
       )}
 
-      {/* ══════════════════════════════════════════════════════════
-          TAB: PIUTANG PELANGGAN
-      ══════════════════════════════════════════════════════════ */}
+      {}
       {tab === 'piutang' && <PelangganLedgerPage />}
 
-      {/* Modal Nota */}
+      {}
       {notaId && (<NotaModal transaksiId={notaId} nomorHarian={notaNomor} onClose={() => { setNotaId(null); setNotaNomor(null); }} onLunasSuccess={() => {
       muatHarian(tanggal);
       muatLabaRugi(bulan);

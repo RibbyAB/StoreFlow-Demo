@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 
 const authMiddleware = (req, res, next) => {
-  // Ambil token dari header Authorization: Bearer <token>
+
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
@@ -11,7 +11,7 @@ const authMiddleware = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // { id, nama, role }
+    req.user = decoded;
     next();
   } catch (err) {
     return res.status(403).json({ success: false, message: 'Token tidak valid atau sudah expired. Silakan login ulang.' });

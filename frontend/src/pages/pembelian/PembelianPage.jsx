@@ -11,7 +11,7 @@ const formatRp = (n) =>
 const formatTgl = (d) =>
   new Date(d).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
 
-// Hitung urgensi jatuh tempo (buat kasih warna & label peringatan)
+
 const getInfoJatuhTempo = (tanggal) => {
   const hariIni = new Date(); hariIni.setHours(0, 0, 0, 0);
   const jt = new Date(tanggal); jt.setHours(0, 0, 0, 0);
@@ -23,7 +23,7 @@ const getInfoJatuhTempo = (tanggal) => {
   return { icon: '⚪', color: '#94a3b8', label: '', urgensi: 0, selisihHari };
 };
 
-/* ─── MODAL DETAIL RIWAYAT ──────────────────────────────────── */
+
 function DetailModal({ pembelian, onClose, onRefresh }) {
   const { user } = useAuth();
   const [cicilanList, setCicilanList] = useState([]);
@@ -82,8 +82,7 @@ function DetailModal({ pembelian, onClose, onRefresh }) {
           position: 'top-center',
         });
 
-        // Tetap di Detail (gak nutup modal), sama konsepnya kayak pembatalan Penjualan --
-        // biar user langsung liat status "dibatalkan"-nya di tempat, gak keplempar balik ke list.
+
         pembelian.status = 'dibatalkan';
         setBatalBerhasil(true);
 
@@ -193,7 +192,7 @@ function DetailModal({ pembelian, onClose, onRefresh }) {
         if (typeof onRefresh === 'function') onRefresh();
         if (typeof onClose === 'function') onClose();
       } else {
-        // Refresh riwayat cicilan & sisa hutang tanpa menutup modal
+
         getCicilanPembelian(id).then(r => setCicilanList(r.data.data || [])).catch(() => {});
         pembelian.total_dibayar = Number(pembelian.total_dibayar || 0) + jml;
         if (typeof onRefresh === 'function') onRefresh();
@@ -370,17 +369,17 @@ function DetailModal({ pembelian, onClose, onRefresh }) {
   );
 }
 
-/* ─── MAIN PEMBELIAN PAGE ───────────────────────────────────── */
+
 export default function PembelianPage() {
   const isMobile = useIsMobile();
-  // Master data
+
   const [semuaBarang, setSemuaBarang]   = useState([]);
   const [supplierList, setSupplierList] = useState([]);
   const [riwayat, setRiwayat]           = useState([]);
   const [showLunasGroup, setShowLunasGroup] = useState(false);
   const [loadRiwayat, setLoadRiwayat]   = useState(true);
 
-  // Form state
+
   const [supplierId, setSupplierId]   = useState(() => localStorage.getItem('draftPembelianSupplier') || '');
   const [supplierSearch, setSupplierSearch] = useState('');
   const [showSupplierDropdown, setShowSupplierDropdown] = useState(false);
@@ -395,7 +394,7 @@ export default function PembelianPage() {
     return saved ? JSON.parse(saved) : [];
   });
 
-  // Search barang
+
   const [search, setSearch]           = useState('');
   const [showDrop, setShowDrop]       = useState(false);
   const [showManualForm, setShowManualForm] = useState(false);
@@ -406,19 +405,18 @@ export default function PembelianPage() {
   const [searchSupplierQuick, setSearchSupplierQuick] = useState('');
   const searchRef                     = useRef();
 
-  // Panel daftar barang
-  // (panelSearch dihapus, sekarang pakai `search` yang sama dari kotak pencarian di atas)
-  const [panelFilter,   setPanelFilter]   = useState('semua'); // 'semua' | 'habis' | 'menipis' | 'aman'
+
+  const [panelFilter,   setPanelFilter]   = useState('semua');
   const [panelCollapse, setPanelCollapse] = useState(false);
 
-  // UI
+
   const [saving, setSaving]           = useState(false);
   const [error, setError]             = useState('');
   const [sukses, setSukses]           = useState('');
   const [tab, setTab] = useState(() => localStorage.getItem('pembelianTab') || 'form');
   const [detailItem, setDetailItem]   = useState(null);
 
-  // Pilih banyak transaksi hutang sekaligus di tab Riwayat, untuk dilunasi bareng
+
   const [selectedRiwayat, setSelectedRiwayat] = useState([]);
   const [melunasiBatch, setMelunasiBatch]     = useState(false);
   const [filterSupplierRiwayat, setFilterSupplierRiwayat] = useState('');
@@ -428,8 +426,7 @@ export default function PembelianPage() {
   });
   const [tampilkanSemuaBulan, setTampilkanSemuaBulan] = useState(false);
 
-  
-  // Load data awal
+
   const muatData = () => {
     getBarang({ supplier_id: supplierId }).then(r => {
       const dataBarang = r.data.data.map(b => ({
@@ -442,7 +439,7 @@ export default function PembelianPage() {
 
     getSupplier().then(r => setSupplierList(r.data.data)).catch(() => {});
 
-    if (riwayat.length === 0) setLoadRiwayat(true); // cuma tampilin loading pas awal, bukan tiap refresh
+    if (riwayat.length === 0) setLoadRiwayat(true);
     const scrollEl = document.querySelector('main');
     const posisiScroll = scrollEl ? scrollEl.scrollTop : 0;
     getPembelian()
@@ -487,20 +484,18 @@ export default function PembelianPage() {
     localStorage.setItem('pembelianTab', tab);
   }, [tab]);
 
-// Simpan setiap kali items berubah
+
   useEffect(() => {
     localStorage.setItem('draftPembelian', JSON.stringify(items));
   }, [items]);
 
-  // Simpan supplier yang dipilih juga, biar gak ke-reset pas pindah tab/reload
-  // selama keranjang masih ada isinya (item & supplier dipertahankan bareng-bareng).
+
   useEffect(() => {
     if (supplierId) localStorage.setItem('draftPembelianSupplier', supplierId);
     else localStorage.removeItem('draftPembelianSupplier');
   }, [supplierId]);
 
-  // Simpan juga status (lunas/hutang), tanggal jatuh tempo, dan checkbox "jangan tambah stok"
-  // -- sama alasannya kayak supplier, biar gak ke-reset pas pindah tab/reload selagi keranjang masih ada isinya.
+
   useEffect(() => {
     localStorage.setItem('draftPembelianStatus', status);
   }, [status]);
@@ -516,28 +511,28 @@ export default function PembelianPage() {
 
   useEffect(() => { muatData(); }, [supplierId]);
 
-  // Sinkronkan teks pencarian dengan supplier yang lagi kepilih (misal pas form direset / batal ganti)
+
   useEffect(() => {
     if (!supplierId) { setSupplierSearch(''); return; }
     const s = supplierList.find(sp => String(sp.id) === String(supplierId));
     if (s) setSupplierSearch(s.nama);
   }, [supplierId, supplierList]);
 
-  // Tutup dropdown saran supplier kalau klik di luar
+
   useEffect(() => {
     const handler = (e) => { if (supplierInputRef.current && !supplierInputRef.current.contains(e.target)) setShowSupplierDropdown(false); };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  // Tutup dropdown kalau klik luar
+
   useEffect(() => {
     const h = (e) => { if (searchRef.current && !searchRef.current.contains(e.target)) setShowDrop(false); };
     document.addEventListener('mousedown', h);
     return () => document.removeEventListener('mousedown', h);
   }, []);
 
-  // Filter dropdown barang
+
   const hasilCari = semuaBarang.filter(b => {
     if (search.length === 0) return false;
     const gabungan = `${b.nama || ''} ${b.kode_barang || ''} ${b.kategori || ''}`.toLowerCase();
@@ -545,7 +540,7 @@ export default function PembelianPage() {
     return kataKata.every(kata => gabungan.includes(kata));
   }).slice(0, 8);
 
-  // Tambah barang ke list
+
   const tambahItem = (barang) => {
     setItems(prev => {
       const ada = prev.find(i => i.barang_id === barang.id);
@@ -563,8 +558,7 @@ export default function PembelianPage() {
     setError('');
   };
 
-  // Tambah item manual (belum ada di database Barang) -> pakai barang_id negatif sebagai
-  // penanda lokal doang, biar semua fungsi update/hapus qty yang udah ada tetap kepake tanpa diubah.
+
   const tambahItemManual = () => {
     if (!manualForm.nama.trim()) { setError('Nama item manual harus diisi.'); return; }
     setItems(prev => [...prev, {
@@ -580,7 +574,7 @@ export default function PembelianPage() {
     setError('');
   };
 
-  // Daftarkan barang baru langsung ke database Barang, terus otomatis masuk ke keranjang pembelian ini juga.
+
   const simpanQuickBarang = async () => {
     if (!quickBarangForm.nama.trim()) { setError('Nama barang harus diisi.'); return; }
     setError('');
@@ -598,7 +592,7 @@ export default function PembelianPage() {
         supplier_ids: quickBarangForm.supplier_ids,
       });
       const barangBaru = { id: res.data.id, nama: quickBarangForm.nama.trim(), satuan: quickBarangForm.satuan || 'pcs', harga_beli: Number(quickBarangForm.harga_beli) || 0 };
-      setSemuaBarang(prev => [...prev, barangBaru]); // biar langsung ke-search juga kalau dicari lagi
+      setSemuaBarang(prev => [...prev, barangBaru]);
       tambahItem(barangBaru);
       toast.success(`Barang "${barangBaru.nama}" berhasil didaftarkan & ditambahkan ke keranjang.`, { position: 'top-center' });
       setQuickBarangForm({ kode_barang: '', nama: '', kategori: '', satuan: 'pcs', harga_beli: '', harga_jual: '', stok_minimum: '', supplier_ids: [] });
@@ -620,8 +614,8 @@ export default function PembelianPage() {
       }
 
       if (field === 'qty') {
-        // Simpan apa adanya dulu selagi user masih ngetik (termasuk "1/", "0.", dll)
-        // Konversi ke desimal final dilakukan di finalisasiQty() saat blur.
+
+
         return { ...i, qty: val };
       }
 
@@ -637,22 +631,22 @@ export default function PembelianPage() {
     const str = String(val).trim();
     let qty;
     if (str.includes('/')) {
-      // Dukung input pecahan langsung, misal "1/4", "3/4", "1/2"
+
       const [pembilang, penyebut] = str.split('/').map(s => parseFloat(s.trim()));
       qty = (!isNaN(pembilang) && !isNaN(penyebut) && penyebut !== 0) ? pembilang / penyebut : NaN;
     } else {
-      qty = parseFloat(str.replace(',', '.')); // dukung juga koma sbg desimal (locale ID)
+      qty = parseFloat(str.replace(',', '.'));
     }
     if (isNaN(qty) || qty <= 0) qty = 0.01;
     return Math.round(qty * 100) / 100;
   };
 
-  // Dipanggil saat user selesai ngetik (blur) - konversi pecahan/koma jadi desimal final
+
   const finalisasiQty = (barang_id) => {
     setItems(prev => prev.map(i => i.barang_id === barang_id ? { ...i, qty: parseQtyInput(i.qty) } : i));
   };
 
-  // Set qty langsung ke angka final (dipakai tombol +/-, dan preset ¼ ½ ¾ 1)
+
   const setQtyLangsung = (barang_id, num) => {
     const qty = Math.round(num * 100) / 100;
     setItems(prev => prev.map(i => i.barang_id === barang_id ? { ...i, qty } : i));
@@ -664,10 +658,8 @@ export default function PembelianPage() {
     if (items.length === 0) { setError('Tambahkan minimal 1 barang.'); return; }
     setSaving(true); setError(''); setSukses('');
     try {
-      // Pastikan semua qty sudah dalam bentuk angka final (jaga-jaga kalau user
-      // belum sempat blur dari input, misal masih ngetik "1/" lalu langsung klik Simpan)
-      // Item manual (barang_id negatif = penanda lokal, belum ada di database Barang)
-      // dikonversi jadi nama_manual/satuan_manual, barang_id-nya di-null-in sebelum dikirim ke server.
+
+
       const itemsFinal = items.map(i => {
         const qty = parseQtyInput(i.qty);
         if (i.isManual) {
@@ -703,7 +695,7 @@ export default function PembelianPage() {
   const handleSupplierChange = (e) => {
     const newId = e.target.value;
 
-    // Jika keranjang masih kosong, langsung ganti supplier tanpa konfirmasi
+
     if (items.length === 0) {
       setSupplierId(newId);
       return;
@@ -714,7 +706,7 @@ export default function PembelianPage() {
       <span style={{ fontSize: '14px', color: '#1e293b' }}>
         <strong>Ganti supplier?</strong> Keranjang belanja akan dikosongkan.
         <div style={{ marginTop: 10, display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-          <button 
+          <button
             onClick={() => {
               setItems([]);
               setSupplierId(newId);
@@ -722,36 +714,36 @@ export default function PembelianPage() {
               toast.success("Supplier diganti & keranjang dikosongkan", { position: 'top-center' });
             }}
 
-            style={{ 
-              background: '#dc2626', color: '#fff', border: 'none', 
-              padding: '6px 12px', borderRadius: 6, cursor: 'pointer', fontWeight: 500 
+            style={{
+              background: '#dc2626', color: '#fff', border: 'none',
+              padding: '6px 12px', borderRadius: 6, cursor: 'pointer', fontWeight: 500
             }}
           >
             Ya, Ganti
           </button>
-          <button 
+          <button
             onClick={() => {
-              e.target.value = oldId; 
-              toast.dismiss(t.id); 
+              e.target.value = oldId;
+              toast.dismiss(t.id);
             }}
-            style={{ 
-              background: '#f1f5f9', color: '#64748b', border: 'none', 
-              padding: '6px 12px', borderRadius: 6, cursor: 'pointer' 
+            style={{
+              background: '#f1f5f9', color: '#64748b', border: 'none',
+              padding: '6px 12px', borderRadius: 6, cursor: 'pointer'
             }}
           >
             Batal
           </button>
         </div>
       </span>
-    ), { 
+    ), {
       duration: Infinity,
-      position: 'top-center' 
+      position: 'top-center'
     });
   };
 
   return (
     <div>
-      {/* Header */}
+      {}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 10 }}>
         <h2 style={{ margin: 0, color: '#1e293b', fontSize: 20 }}>📥 Pembelian dari Supplier</h2>
         <div style={{ display: 'flex', gap: 8 }}>
@@ -768,7 +760,7 @@ export default function PembelianPage() {
         </div>
       </div>
 
-      {/* ── ALERT JATUH TEMPO ────────────────────────── */}
+      {}
       {(() => {
         const perluPerhatian = riwayat
           .filter(r => r.status === 'hutang' && r.jatuh_tempo)
@@ -869,14 +861,14 @@ export default function PembelianPage() {
         );
       })()}
 
-      {/* ── TAB FORM ─────────────────────────────────── */}
+      {}
       {tab === 'form' && (
         <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 320px', gap: 20, alignItems: 'start' }}>
 
-          {/* KIRI */}
+          {}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16, minWidth: 0 }}>
 
-            {/* Info Pembelian */}
+            {}
             <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: 20 }}>
               <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 14, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Informasi Pembelian</div>
               <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 14 }}>
@@ -980,7 +972,7 @@ export default function PembelianPage() {
               </div>
             </div>
 
-            {/* Search Barang */}
+            {}
             <div ref={searchRef} style={{ position: 'relative' }}>
               <div style={{ position: 'relative' }}>
                 <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)' }}>🔍</span>
@@ -1042,9 +1034,9 @@ export default function PembelianPage() {
               )}
             </div>
 
-            {/* ── PANEL DAFTAR BARANG ──────────────────────── */}
+            {}
             {(() => {
-              // Sorted ascending by stok (habis → terbanyak), then filtered
+
               const barangSorted = [...semuaBarang].sort((a, b) => a.stok - b.stok);
               const barangFiltered = barangSorted.filter(b => {
                 const cocokCari = search === '' ||
@@ -1062,7 +1054,7 @@ export default function PembelianPage() {
 
               return (
                 <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, overflow: 'hidden' }}>
-                  {/* Header panel */}
+                  {}
                   <div style={{ padding: '14px 18px', borderBottom: panelCollapse ? 'none' : '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                       <button
@@ -1077,7 +1069,7 @@ export default function PembelianPage() {
                     </div>
                     {!panelCollapse && (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                        {/* Filter chips */}
+                        {}
                         {[
                           { key: 'semua',   label: `Semua (${semuaBarang.length})`,  bg: '#f1f5f9', color: '#475569', activeBg: '#1e293b', activeColor: '#fff' },
                           { key: 'habis',   label: `🚨 Habis (${countHabis})`,        bg: '#fef2f2', color: '#dc2626', activeBg: '#dc2626', activeColor: '#fff' },
@@ -1095,7 +1087,7 @@ export default function PembelianPage() {
                     )}
                   </div>
 
-                  {/* Body panel */}
+                  {}
                   {!panelCollapse && (
                     barangFiltered.length === 0 ? (
                       <div style={{ padding: '28px 0', textAlign: 'center', color: '#94a3b8', fontSize: 13 }}>
@@ -1121,7 +1113,7 @@ export default function PembelianPage() {
                               const rowBg       = habis ? '#fff8f8' : menipis ? '#fffdf0' : '#fff';
                               const sudahDiKeranjang = items.some(i => i.barang_id === b.id);
 
-                              // Stok bar visual
+
                               const maxStok = Math.max(...semuaBarang.map(x => x.stok), 1);
                               const barPct  = Math.min((b.stok / maxStok) * 100, 100);
                               const barClr  = habis ? '#fca5a5' : menipis ? '#fde68a' : '#86efac';
@@ -1197,7 +1189,7 @@ export default function PembelianPage() {
               </button>
             )}
 
-            {/* ── FORM ITEM MANUAL ─────────────────────────── */}
+            {}
             {showManualForm && (
               <div style={{ marginTop: 14, background: '#fffbeb', border: '1.5px solid #fde68a', borderRadius: 12, padding: 16 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
@@ -1228,7 +1220,7 @@ export default function PembelianPage() {
               </div>
             )}
 
-            {/* ── FORM QUICK-CREATE BARANG BARU ────────────── */}
+            {}
             {showQuickBarangForm && (
               <div style={{ marginTop: 14, background: '#eff6ff', border: '1.5px solid #bfdbfe', borderRadius: 12, padding: 16 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
@@ -1330,7 +1322,7 @@ export default function PembelianPage() {
               </div>
             )}
 
-            {/* Tabel Item */}
+            {}
             <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, overflow: 'auto' }}>
               {items.length === 0 ? (
                 <div style={{ padding: '48px 0', textAlign: 'center', color: '#94a3b8' }}>
@@ -1367,8 +1359,8 @@ export default function PembelianPage() {
                           </td>
                           <td style={{ padding: '10px 14px' }}>
                             <input
-                              type="number" 
-                              value={Number(item.harga_beli)} 
+                              type="number"
+                              value={Number(item.harga_beli)}
                               min={0}
                               onChange={e => updateItem(item.barang_id, 'harga_beli', e.target.value)}
                               style={{ width: 120, padding: '7px 10px', border: '1px solid #e2e8f0', borderRadius: 6, fontSize: 13, textAlign: 'right' }}
@@ -1439,7 +1431,7 @@ export default function PembelianPage() {
               )}
             </div>
 
-            {/* Alert */}
+            {}
             {error && (
               <div style={{ background: '#fef2f2', border: '1px solid #fca5a5', color: '#dc2626', padding: '10px 14px', borderRadius: 8, fontSize: 13, display: 'flex', justifyContent: 'space-between' }}>
                 <span>⚠️ {error}</span>
@@ -1453,7 +1445,7 @@ export default function PembelianPage() {
             )}
           </div>
 
-          {/* KANAN: Ringkasan */}
+          {}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: 20 }}>
               <div style={{ fontSize: 12, fontWeight: 600, color: '#64748b', marginBottom: 14, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Ringkasan Pembelian</div>
@@ -1485,7 +1477,7 @@ export default function PembelianPage() {
               </div>
             </div>
 
-            {/* Info stok otomatis */}
+            {}
             <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: 10, padding: '12px 14px' }}>
               <div style={{ fontSize: 13, fontWeight: 600, color: '#1d4ed8', marginBottom: 6 }}>ℹ️ Update Stok Otomatis</div>
               <div style={{ fontSize: 12, color: '#3b82f6', lineHeight: 1.6 }}>
@@ -1511,7 +1503,7 @@ export default function PembelianPage() {
         </div>
       )}
 
-      {/* ── TAB RIWAYAT ──────────────────────────────── */}
+      {}
       {tab === 'riwayat' && (
         <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, overflow: 'auto' }}>
           {loadRiwayat ? (
@@ -1571,16 +1563,14 @@ export default function PembelianPage() {
               {(() => {
                 const riwayatFiltered = riwayat.filter(r => !filterSupplierRiwayat || (r.supplier || '').toLowerCase().includes(filterSupplierRiwayat.toLowerCase()));
 
-                // Pisahkan dulu yang udah lewat jatuh tempo (belum lunas) -> section sendiri di paling atas
+
                 const overdue = riwayatFiltered
                   .filter(r => r.status === 'hutang' && r.jatuh_tempo && getInfoJatuhTempo(r.jatuh_tempo).urgensi === 3)
-                  .sort((a, b) => new Date(a.jatuh_tempo) - new Date(b.jatuh_tempo)); // paling lama telat duluan
+                  .sort((a, b) => new Date(a.jatuh_tempo) - new Date(b.jatuh_tempo));
 
                 const overdueIds = new Set(overdue.map(r => r.id));
 
-                // Pengaman: kalau ada nota yang tanggalnya (jatuh_tempo/created_at) ternyata gak
-                // valid/rusak, JANGAN sampai ilang diam-diam dari semua filter bulan -- taruh di
-                // section sendiri yang SELALU muncul, biar ketauan & bisa dicek manual.
+
                 const tanggalInvalid = riwayatFiltered.filter(r => {
                   if (overdueIds.has(r.id)) return false;
                   const d = new Date(r.jatuh_tempo || r.created_at);
@@ -1588,33 +1578,28 @@ export default function PembelianPage() {
                 });
                 const invalidIds = new Set(tanggalInvalid.map(r => r.id));
 
-                // Pisahin juga yang udah lunas -> grup collapsible sendiri di paling atas (di atas
-                // "Sudah Lewat"), biar gak numpuk campur sama grup bulanan & gak ganggu info yang lebih penting.
+
                 const lunasSemua = riwayatFiltered
                   .filter(r => {
                     if (r.status !== 'lunas' || invalidIds.has(r.id)) return false;
-                    // Nota lunas sekarang dikelompokkan berdasarkan BULAN PELUNASANNYA (dilunasi_at),
-                    // bukan bulan jatuh tempo/nota dibuat lagi -- biar nota yang dibuat bulan lalu
-                    // tapi baru lunas bulan ini, muncul di grup bulan ini (bulan pas dia beneran lunas).
-                    // Kalau dilunasi_at kosong (data lama dari sebelum field ini ada), fallback ke
-                    // jatuh_tempo/tanggal dibuat biar datanya tetap kelihatan, gak ilang begitu aja.
-                    const tglAcuan = r.dilunasi_at || r.jatuh_tempo || r.created_at;
+
+
+                    const tglAcuan = r.jatuh_tempo || r.created_at;
                     const d = new Date(tglAcuan);
                     const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
                     return tampilkanSemuaBulan || key === filterBulanRiwayat;
                   })
                   .sort((a, b) => {
                     if (!a.dilunasi_at && !b.dilunasi_at) return 0;
-                    if (!a.dilunasi_at) return 1;  // gak ada data pelunasan -> taruh di bawah
+                    if (!a.dilunasi_at) return 1;
                     if (!b.dilunasi_at) return -1;
-                    return new Date(b.dilunasi_at) - new Date(a.dilunasi_at); // paling baru dilunasin duluan
+                    return new Date(b.dilunasi_at) - new Date(a.dilunasi_at);
                   });
                 const lunasIds = new Set(lunasSemua.map(r => r.id));
 
                 const sisanya = riwayatFiltered.filter(r => !overdueIds.has(r.id) && !lunasIds.has(r.id) && !invalidIds.has(r.id));
 
-                // Kelompokkan sisanya per bulan JATUH TEMPO (kalau ada) -- fallback ke tanggal nota dibuat
-                // buat transaksi yang gak punya jatuh tempo (lunas / dibatalkan / hutang tanpa tanggal jatuh tempo).
+
                 const grup = {};
                 sisanya.forEach(r => {
                   const d = new Date(r.jatuh_tempo || r.created_at);
@@ -1623,7 +1608,7 @@ export default function PembelianPage() {
                   grup[key].items.push(r);
                 });
                 const bulanKeys = Object.keys(grup)
-                  .filter(k => tampilkanSemuaBulan || k === filterBulanRiwayat) // "Tampilkan semua bulan" bypass filter dropdown
+                  .filter(k => tampilkanSemuaBulan || k === filterBulanRiwayat)
                   .sort((a, b) => a.localeCompare(b));
                 bulanKeys.forEach(k => grup[k].items.sort((a, b) => new Date(a.jatuh_tempo || a.created_at) - new Date(b.jatuh_tempo || b.created_at)));
 
@@ -1750,7 +1735,7 @@ export default function PembelianPage() {
         </div>
       )}
 
-      {/* Modal Detail */}
+      {}
       {detailItem && <DetailModal pembelian={detailItem} onClose={() => setDetailItem(null)} onRefresh={muatData}/>}
     </div>
   );

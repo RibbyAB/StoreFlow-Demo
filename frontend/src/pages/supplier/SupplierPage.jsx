@@ -11,7 +11,7 @@ const formatTgl = (d) =>
 
 const formKosong = { nama: '', telepon: '', alamat: '', keterangan: '' };
 
-/* ─── MODAL FORM SUPPLIER ────────────────────────────────────── */
+
 function FormModal({ supplier, onSave, onClose }) {
   const [form,   setForm]   = useState(supplier || formKosong);
   const [saving, setSaving] = useState(false);
@@ -86,7 +86,7 @@ function FormModal({ supplier, onSave, onClose }) {
   );
 }
 
-/* ─── MODAL ASSIGN BARANG (pilih banyak barang sekaligus buat 1 supplier) ── */
+
 function AssignBarangModal({ supplier, onClose, onSaved }) {
   const [semuaBarang, setSemuaBarang] = useState([]);
   const [selected,    setSelected]    = useState([]);
@@ -202,7 +202,7 @@ function AssignBarangModal({ supplier, onClose, onSaved }) {
   );
 }
 
-/* ─── MODAL DETAIL SUPPLIER ──────────────────────────────────── */
+
 function DetailModal({ supplier, onClose, onEdit }) {
   const isMobile = useIsMobile();
   const [riwayat,  setRiwayat]  = useState([]);
@@ -230,7 +230,7 @@ function DetailModal({ supplier, onClose, onEdit }) {
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
       <div style={{ background: '#fff', borderRadius: 14, width: 'min(520px, 94vw)', maxHeight: '88vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.15)', display: 'flex', flexDirection: 'column' }}>
 
-        {/* Header */}
+        {}
         <div style={{ padding: '20px 24px 16px', borderBottom: '1px solid #e2e8f0' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
@@ -252,7 +252,7 @@ function DetailModal({ supplier, onClose, onEdit }) {
         </div>
 
         <div style={{ padding: '20px 24px', flex: 1 }}>
-          {/* Info */}
+          {}
           {(supplier.alamat || supplier.keterangan) && (
             <div style={{ background: '#f8fafc', borderRadius: 10, padding: '12px 16px', marginBottom: 20 }}>
               {supplier.alamat && (
@@ -270,7 +270,7 @@ function DetailModal({ supplier, onClose, onEdit }) {
             </div>
           )}
 
-          {/* Ringkasan transaksi */}
+          {}
           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr 1fr', gap: 10, marginBottom: 20 }}>
             {[
               { label: 'Total Transaksi', val: ringkasan.total_transaksi, satuan: 'kali', warna: '#3b82f6', bg: '#eff6ff' },
@@ -284,7 +284,7 @@ function DetailModal({ supplier, onClose, onEdit }) {
             ))}
           </div>
 
-          {/* Riwayat pembelian */}
+          {}
           <div style={{ fontSize: 13, fontWeight: 600, color: '#64748b', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
             Riwayat Pembelian
           </div>
@@ -329,7 +329,7 @@ function DetailModal({ supplier, onClose, onEdit }) {
   );
 }
 
-/* ─── MAIN SUPPLIER PAGE ─────────────────────────────────────── */
+
 export default function SupplierPage() {
   const [data,     setData]     = useState([]);
   const [loading,  setLoading]  = useState(true);
@@ -342,7 +342,7 @@ export default function SupplierPage() {
   const [sukses,   setSukses]   = useState('');
 
   const muat = () => {
-    if (data.length === 0) setLoading(true); // cuma tampilin loading pas awal, bukan tiap refresh abis save
+    if (data.length === 0) setLoading(true);
     const scrollEl = document.querySelector('main');
     const posisiScroll = scrollEl ? scrollEl.scrollTop : 0;
     getSupplier()
@@ -390,7 +390,7 @@ export default function SupplierPage() {
 
   return (
     <div>
-      {/* Header */}
+      {}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 10 }}>
         <div>
           <h2 style={{ margin: 0, color: '#1e293b', fontSize: 20 }}>🏭 Data Supplier</h2>
@@ -402,14 +402,14 @@ export default function SupplierPage() {
         }}>+ Tambah Supplier</button>
       </div>
 
-      {/* Notifikasi sukses */}
+      {}
       {sukses && (
         <div style={{ background: '#f0fdf4', border: '1px solid #86efac', color: '#166534', padding: '10px 16px', borderRadius: 8, marginBottom: 16, fontSize: 13 }}>
           ✅ {sukses}
         </div>
       )}
 
-      {/* Search */}
+      {}
       <div style={{ position: 'relative', marginBottom: 16 }}>
         <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)' }}>🔍</span>
         <input
@@ -419,7 +419,7 @@ export default function SupplierPage() {
         />
       </div>
 
-      {/* Grid kartu supplier */}
+      {}
       {loading ? (
         <div style={{ padding: 48, textAlign: 'center', color: '#94a3b8' }}>Memuat data supplier...</div>
       ) : filtered.length === 0 ? (
@@ -439,7 +439,7 @@ export default function SupplierPage() {
               onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.08)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
               onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'none'; }}
             >
-              {/* Atas */}
+              {}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14 }}>
                 <div style={{ display: 'flex', gap: 12, alignItems: 'center', minWidth: 0 }}>
                   <div style={{ width: 42, height: 42, background: '#eff6ff', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>🏭</div>
@@ -457,7 +457,7 @@ export default function SupplierPage() {
                 </div>
               </div>
 
-              {/* Alamat */}
+              {}
               {s.alamat && (
                 <div style={{ fontSize: 12, color: '#64748b', marginBottom: 10, display: 'flex', gap: 6, alignItems: 'flex-start' }} title={s.alamat}>
                   <span style={{ flexShrink: 0 }}>📍</span>
@@ -469,7 +469,7 @@ export default function SupplierPage() {
                 </div>
               )}
 
-              {/* Keterangan */}
+              {}
               {s.keterangan && (
                 <div style={{
                   fontSize: 12, color: '#94a3b8', marginBottom: 12, fontStyle: 'italic', lineHeight: 1.5,
@@ -481,7 +481,7 @@ export default function SupplierPage() {
                 </div>
               )}
 
-              {/* Tombol aksi */}
+              {}
               <div style={{ display: 'flex', gap: 8, marginTop: 'auto', paddingTop: 4 }}>
                 <button onClick={() => setDetail(s)} style={{
                   flex: 1, padding: '7px 0', background: '#f8fafc', border: '1px solid #e2e8f0',
@@ -505,7 +505,7 @@ export default function SupplierPage() {
         </div>
       )}
 
-      {/* Konfirmasi hapus */}
+      {}
       {hapusId && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200 }}>
           <div style={{ background: '#fff', borderRadius: 14, padding: 28, width: 'min(360px, 94vw)', textAlign: 'center', boxShadow: '0 20px 60px rgba(0,0,0,0.15)' }}>
@@ -522,7 +522,7 @@ export default function SupplierPage() {
         </div>
       )}
 
-      {/* Modal Form */}
+      {}
       {showForm && (
         <FormModal
           supplier={editData}
@@ -531,7 +531,7 @@ export default function SupplierPage() {
         />
       )}
 
-      {/* Modal Detail */}
+      {}
       {detail && (
         <DetailModal
           supplier={detail}
@@ -540,7 +540,7 @@ export default function SupplierPage() {
         />
       )}
 
-      {/* Modal Assign Barang */}
+      {}
       {assignBarang && (
         <AssignBarangModal
           supplier={assignBarang}

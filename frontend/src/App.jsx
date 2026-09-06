@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { PengaturanProvider } from './context/PengaturanContext';
 
-// Halaman
+
 import LoginPage      from './pages/auth/LoginPage';
 import DashboardPage  from './pages/dashboard/DashboardPage';
 import BarangPage     from './pages/barang/BarangPage';
@@ -13,10 +13,10 @@ import LaporanPage    from './pages/laporan/LaporanPage';
 import SupplierPage   from './pages/supplier/SupplierPage';
 import SettingsPage   from './pages/settings/SettingsPage';
 
-// Layout
+
 import MainLayout from './components/layout/MainLayout';
 
-// Route yang butuh login
+
 const PrivateRoute = ({ children, ownerOnly = false }) => {
   const { user, loading } = useAuth();
   if (loading) return <div className="loading">Memuat...</div>;

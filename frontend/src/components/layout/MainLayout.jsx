@@ -21,12 +21,11 @@ export default function MainLayout() {
   const { pengaturan } = usePengaturan();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  // Di HP/tablet sempit, sidebar defaultnya TERTUTUP (biar konten dapet ruang penuh) dan
-  // munculnya sebagai overlay di atas konten (bukan makan tempat horizontal terus-terusan).
+
+
   const [sidebarOpen, setSidebarOpen] = useState(!isMobile);
 
-  // Kalau ukuran layar berubah SETELAH halaman kebuka (misal muter HP, atau resize window),
-  // ikutin sikap defaultnya lagi -- biar gak nyangkut kebuka/tertutup dari state lama.
+
   React.useEffect(() => {
     setSidebarOpen(!isMobile);
   }, [isMobile]);
@@ -40,7 +39,7 @@ export default function MainLayout() {
     <div style={{ display: 'flex', height: '100dvh', fontFamily: 'sans-serif', overflow: 'hidden', position: 'relative' }}>
       <Toaster position="top-right" />
 
-      {/* Overlay gelap di belakang sidebar pas dibuka di HP -- klik di luar buat nutup */}
+      {}
       {isMobile && sidebarOpen && (
         <div
           onClick={() => setSidebarOpen(false)}
@@ -48,7 +47,7 @@ export default function MainLayout() {
         />
       )}
 
-      {/* SIDEBAR */}
+      {}
       <aside style={{
         width: isMobile ? 220 : (sidebarOpen ? 190 : 60),
         background: '#1e293b',
@@ -110,9 +109,9 @@ export default function MainLayout() {
         </div>
       </aside>
 
-      {/* KONTEN UTAMA */}
+      {}
       <main style={{ flex: 1, background: '#f1f5f9', overflowY: 'scroll', scrollbarGutter: 'stable', height: '100dvh', width: '100%', minWidth: 0 }}>
-        {/* Header */}
+        {}
         <div style={{ background: '#fff', padding: isMobile ? '12px 16px' : '12px 24px', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: 12 }}>
           <button onClick={() => setSidebarOpen(!sidebarOpen)} style={{
             background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: '#64748b'
@@ -122,7 +121,7 @@ export default function MainLayout() {
           </span>
         </div>
 
-        {/* Isi halaman */}
+        {}
         <div style={{ padding: isMobile ? 10 : 16 }}>
           <Outlet />
         </div>

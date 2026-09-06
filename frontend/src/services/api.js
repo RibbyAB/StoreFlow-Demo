@@ -1,8 +1,6 @@
 import axios from 'axios';
 
-// Deteksi apa lagi diakses dari jaringan lokal (localhost ATAU IP lokal kayak 192.168.x.x,
-// misal pas testing dari HP yang konek ke WiFi yang sama kayak komputer development).
-// Kalau iya, backend-nya ikut dituju ke komputer yang sama (port 8080), bukan ke production.
+
 const hostname = window.location.hostname;
 const isLocalNetwork =
   hostname === 'localhost' ||
@@ -13,7 +11,7 @@ const isLocalNetwork =
 
 const API_BASE_URL = isLocalNetwork
   ? `http://${hostname}:8080/api`
-  : 'https://store-flow-demo-backend.vercel.app/api';
+  : 'https://store-flow-two.vercel.app/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -40,9 +38,7 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // Retry otomatis 1x untuk error koneksi/server (misal koneksi database
-    // sempat basi setelah lama idle). Tidak berlaku untuk request login,
-    // biar tidak retry percobaan login yang memang salah password.
+
     const config = error.config;
     const isNetworkOrServerError = !error.response || error.response.status >= 500;
     const isLogin = config?.url?.includes('/auth/login');
@@ -56,17 +52,13 @@ api.interceptors.response.use(
   }
 );
 
-// =============================================
-// AUTH
-// =============================================
+
 export const login = (email, password) =>
   api.post('/auth/login', { email, password });
 
-// =============================================
-// BARANG
-// =============================================
+
 export const getBarang = (params) => {
-  return api.get('/barang', { params }); 
+  return api.get('/barang', { params });
 };
 
 export const getBarangById = (id) =>
@@ -87,9 +79,7 @@ export const deleteBarang = (id) =>
 export const restoreBarang = (id) =>
   api.put(`/barang/${id}/restore`);
 
-// =============================================
-// PENJUALAN
-// =============================================
+
 export const getPenjualan = (params = {}) =>
   api.get('/penjualan', { params });
 
@@ -120,9 +110,7 @@ export const getCicilanPenjualan = (id) =>
 export const hapusCicilanPenjualan = (id, cicilanId) =>
   api.delete(`/penjualan/${id}/cicil/${cicilanId}`);
 
-// =============================================
-// PEMBELIAN
-// =============================================
+
 export const getPembelian = () =>
   api.get('/pembelian');
 
@@ -147,9 +135,7 @@ export const batalkanPembelian = (id, data = {}) =>
 export const hapusPembelian = (id) =>
   api.delete(`/pembelian/${id}`);
 
-// =============================================
-// SUPPLIER & PELANGGAN
-// =============================================
+
 export const getSupplier = () =>
   api.get('/supplier');
 
@@ -171,9 +157,7 @@ export const createSupplier = (data) =>
 export const getPelanggan = () =>
   api.get('/pelanggan');
 
-// =============================================
-// DASHBOARD & LAPORAN
-// =============================================
+
 export const getDashboard = () =>
   api.get('/dashboard');
 
@@ -201,9 +185,7 @@ export const getLaporanLabaRugi = (bulan) =>
 export const getStokMenipis = () =>
   api.get('/laporan/stok-menipis');
 
-// =============================================
-// PENGATURAN TOKO
-// =============================================
+
 export const getPengaturan = () =>
   api.get('/pengaturan');
 

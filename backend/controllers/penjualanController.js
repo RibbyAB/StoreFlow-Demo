@@ -1,6 +1,6 @@
 const db = require('../config/database');
 
-// POST /api/penjualan
+
 const createPenjualan = async (req, res) => {
   const conn = await db.getConnection();
   try {
@@ -12,20 +12,17 @@ const createPenjualan = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Minimal 1 item harus diisi.' });
     }
 
-    // Status otomatis: hutang = belum_lunas, lainnya = lunas
+
     const metodeFinal = metode_bayar || 'tunai';
     const statusFinal = metodeFinal === 'hutang' ? 'belum_lunas' : 'lunas';
 
     const subtotal = items.reduce((sum, item) => sum + (item.qty * item.harga_jual), 0);
     const total    = subtotal - Number(diskon);
-    // Kalau statusnya langsung lunas, total_dibayar harus ikut keisi = total (konsisten,
-    // sebelumnya kolom ini kebiarin 0 walau statusnya udah lunas).
+
+
     const totalDibayarAwal = statusFinal === 'lunas' ? total : 0;
 
-    // Tanggal transaksi bisa diinput manual (misal buat input ulang nota yang dibatalkan biar
-    // tanggalnya balik sesuai tanggal aslinya) -- kalau gak diisi, otomatis pakai waktu sekarang.
-    // Cuma owner yang boleh nentuin tanggal manual (biar gak disalahgunain kasir biasa).
-    // Validasi: gak boleh tanggal masa depan (biar gak kepake buat manipulasi data).
+
     let createdAtFinal = null;
     if (tanggal) {
       if (req.user.role !== 'owner') {
@@ -35,14 +32,14 @@ const createPenjualan = async (req, res) => {
       if (isNaN(tglInput.getTime())) {
         return res.status(400).json({ success: false, message: 'Format tanggal tidak valid.' });
       }
-      if (tglInput.getTime() > Date.now() + 60 * 60 * 1000) { // toleransi 1 jam buat selisih jam client/server
+      if (tglInput.getTime() > Date.now() + 60 * 60 * 1000) {
         return res.status(400).json({ success: false, message: 'Tanggal transaksi tidak boleh di masa depan.' });
       }
       createdAtFinal = tglInput;
     }
 
     const [result] = await conn.query(
-      `INSERT INTO penjualan 
+      `INSERT INTO penjualan
         (nama_pelanggan, kasir_id, metode_bayar, subtotal, diskon, total, total_dibayar, catatan, status${createdAtFinal ? ', created_at' : ''})
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?${createdAtFinal ? ', ?' : ''})`,
       createdAtFinal
@@ -61,8 +58,7 @@ const createPenjualan = async (req, res) => {
       if (barang.length === 0) throw new Error(`Barang ID ${item.barang_id} tidak ditemukan.`);
       if (barang[0].stok < item.qty) throw new Error(`Stok ${barang[0].nama} tidak cukup. Tersedia: ${barang[0].stok}`);
 
-      // Bekukan harga beli (modal) yang berlaku SAAT INI, biar HPP/Laba Kotor di laporan gak ikut
-      // berubah kalau harga beli barangnya diedit belakangan.
+
       await conn.query(
         'INSERT INTO detail_penjualan (penjualan_id, barang_id, qty, harga_jual, harga_beli) VALUES (?, ?, ?, ?, ?)',
         [penjualanId, item.barang_id, item.qty, item.harga_jual, barang[0].harga_beli]
@@ -88,11 +84,7 @@ const createPenjualan = async (req, res) => {
   }
 };
 
-// PUT /api/penjualan/:id/edit
-// Edit isi nota (item, qty, harga, dll) tanpa perlu hapus & buat ulang.
-// Stok barang lama dikembalikan dulu, baru dipotong ulang sesuai item yang baru.
-// Hanya boleh dipakai kalau transaksi belum pernah dicicil (biar gak bikin riwayat cicilan rusak)
-// dan belum dibatalkan.
+
 const editPenjualan = async (req, res) => {
   const conn = await db.getConnection();
   try {
@@ -123,14 +115,14 @@ const editPenjualan = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Transaksi ini sudah pernah dicicil, tidak bisa diedit. Hapus dulu semua riwayat cicilannya kalau tetap mau edit.' });
     }
 
-    // 1) Kembalikan stok dari item-item lama
+
     const [itemLama] = await conn.query('SELECT barang_id, qty FROM detail_penjualan WHERE penjualan_id = ?', [req.params.id]);
     for (const it of itemLama) {
       await conn.query('UPDATE barang SET stok = stok + ? WHERE id = ?', [it.qty, it.barang_id]);
     }
     await conn.query('DELETE FROM detail_penjualan WHERE penjualan_id = ?', [req.params.id]);
 
-    // 2) Potong stok sesuai item-item baru (validasi cukup/nggaknya stok di sini, setelah dikembalikan di atas)
+
     for (const item of items) {
       if (item.qty <= 0) throw new Error('Qty barang tidak valid.');
 
@@ -145,13 +137,13 @@ const editPenjualan = async (req, res) => {
       await conn.query('UPDATE barang SET stok = stok - ? WHERE id = ?', [item.qty, item.barang_id]);
     }
 
-    // 3) Hitung ulang subtotal/total, update header transaksi
+
     const subtotalBaru = items.reduce((sum, item) => sum + (item.qty * item.harga_jual), 0);
     const totalBaru    = subtotalBaru - Number(diskon);
     const metodeFinal  = metode_bayar || lama.metode_bayar;
     const statusFinal  = metodeFinal === 'hutang' ? 'belum_lunas' : 'lunas';
-    // Kalau sebelumnya udah lunas (dan gak ada cicilan, sudah dicek di atas), anggap tetap lunas
-    // penuh sesuai total yang baru. Kalau statusnya hutang, total_dibayar tetap 0.
+
+
     const totalDibayarBaru = statusFinal === 'lunas' ? totalBaru : 0;
 
     await conn.query(
@@ -170,7 +162,7 @@ const editPenjualan = async (req, res) => {
   }
 };
 
-// PUT /api/penjualan/:id/lunasi
+
 const konfirmasiPelunasan = async (req, res) => {
   try {
     const [cek] = await db.query(
@@ -187,18 +179,18 @@ const konfirmasiPelunasan = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Transaksi yang sudah dibatalkan tidak bisa dilunasi.' });
     }
 
-    // Ambil metode_bayar baru (Tunai/Transfer/QRIS) yang dikirim oleh frontend
-    const { metode_bayar } = req.body; 
+
+    const { metode_bayar } = req.body;
     const metodeFinal = metode_bayar || 'tunai';
 
-    // PERBAIKAN QUERY: Ikut mengupdate metode_bayar agar tidak mengunci di kata 'hutang'
+
     await db.query(
       "UPDATE penjualan SET status = 'lunas', metode_bayar = ?, total_dibayar = total, tgl_pelunasan = NOW() WHERE id = ?",
       [metodeFinal, req.params.id]
     );
 
-    res.json({ 
-      success: true, 
+    res.json({
+      success: true,
       message: 'Pelunasan berhasil dikonfirmasi.',
       metode_bayar: metodeFinal,
       status: 'lunas'
@@ -209,7 +201,7 @@ const konfirmasiPelunasan = async (req, res) => {
   }
 };
 
-// GET /api/penjualan/:id/cicilan - riwayat cicilan yang sudah dibayar pelanggan untuk 1 transaksi
+
 const getCicilanPenjualan = async (req, res) => {
   try {
     const [rows] = await db.query(`
@@ -225,7 +217,7 @@ const getCicilanPenjualan = async (req, res) => {
   }
 };
 
-// POST /api/penjualan/:id/cicil - pelanggan bayar cicilan sebagian dari piutangnya
+
 const cicilPenjualan = async (req, res) => {
   const conn = await db.getConnection();
   try {
@@ -286,8 +278,7 @@ const cicilPenjualan = async (req, res) => {
   }
 };
 
-// DELETE /api/penjualan/:id/cicil/:cicilanId - hapus 1 catatan cicilan pelanggan (salah input),
-// otomatis hitung ulang total_dibayar & balikin status jadi 'belum_lunas' lagi kalau sebelumnya lunas.
+
 const hapusCicilanPenjualan = async (req, res) => {
   const conn = await db.getConnection();
   try {
@@ -316,8 +307,8 @@ const hapusCicilanPenjualan = async (req, res) => {
     await conn.query('DELETE FROM cicilan_penjualan WHERE id = ?', [req.params.cicilanId]);
 
     const totalDibayarBaru = Math.max(0, Number(p.total_dibayar) - Number(cicilRows[0].jumlah));
-    // Kalau sisa total_dibayar SETELAH cicilan ini dihapus masih cukup (misal ada kelebihan
-    // bayar dari cicilan lain), statusnya tetap lunas -- gak dipaksa balik ke belum_lunas.
+
+
     const masihLunas = totalDibayarBaru >= Number(p.total) - 0.5;
     await conn.query(
       masihLunas
@@ -337,10 +328,7 @@ const hapusCicilanPenjualan = async (req, res) => {
   }
 };
 
-// PUT /api/penjualan/:id/batalkan
-// PUT /api/penjualan/:id/nama-pelanggan - edit nama pelanggan di nota (misal salah ketik,
-// atau tadinya kecatet "Pelanggan Umum" tapi mau diganti jadi nama beneran biar bisa ditrack
-// lewat Piutang Pelanggan).
+
 const editNamaPelanggan = async (req, res) => {
   try {
     const { nama_pelanggan } = req.body;
@@ -361,8 +349,7 @@ const editNamaPelanggan = async (req, res) => {
   }
 };
 
-// Membatalkan transaksi yang salah input: stok barang dikembalikan otomatis
-// dan status transaksi diubah menjadi 'dibatalkan' (tidak dihapus, agar riwayat tetap ada).
+
 const batalkanPenjualan = async (req, res) => {
   const conn = await db.getConnection();
   try {
@@ -383,7 +370,7 @@ const batalkanPenjualan = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Transaksi ini sudah dibatalkan sebelumnya.' });
     }
 
-    // Kembalikan stok setiap barang yang ada di transaksi ini
+
     const [items] = await conn.query(
       'SELECT barang_id, qty FROM detail_penjualan WHERE penjualan_id = ?',
       [req.params.id]
@@ -414,7 +401,7 @@ const batalkanPenjualan = async (req, res) => {
   }
 };
 
-// GET /api/penjualan
+
 const getAllPenjualan = async (req, res) => {
   try {
     const { tanggal_mulai, tanggal_akhir, limit = 100, status } = req.query;
@@ -452,7 +439,7 @@ const getAllPenjualan = async (req, res) => {
   }
 };
 
-// GET /api/penjualan/hutang
+
 const getHutangPelanggan = async (req, res) => {
   try {
     const [rows] = await db.query(`
@@ -469,7 +456,7 @@ const getHutangPelanggan = async (req, res) => {
   }
 };
 
-// GET /api/penjualan/:id
+
 const getPenjualanById = async (req, res) => {
   try {
     const [header] = await db.query(
@@ -498,7 +485,7 @@ const getPenjualanById = async (req, res) => {
   }
 };
 
-// DELETE /api/penjualan/:id - hapus permanen transaksi yang sudah dibatalkan (khusus owner, buat beresin riwayat)
+
 const hapusPenjualan = async (req, res) => {
   try {
     const [cek] = await db.query('SELECT id, status FROM penjualan WHERE id = ?', [req.params.id]);

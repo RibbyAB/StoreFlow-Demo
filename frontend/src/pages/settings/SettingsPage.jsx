@@ -10,8 +10,7 @@ export default function SettingsPage() {
   const [form, setForm] = useState(pengaturan);
   const [saving, setSaving] = useState(false);
 
-  // Begitu data pengaturan asli kebaca dari server, isi form pakai itu (biar gak nunjukin
-  // nilai default sesaat sebelum data aslinya nyampe)
+
   useEffect(() => { setForm(pengaturan); }, [pengaturan]);
 
   const ubah = (field, value) => setForm(prev => ({ ...prev, [field]: value }));
@@ -51,7 +50,7 @@ export default function SettingsPage() {
       <form onSubmit={simpan}>
         <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 14, alignItems: 'start' }}>
 
-          {/* Informasi Toko */}
+          {}
           <div style={cardStyle}>
             <div style={sectionTitleStyle}>🏪 Informasi Toko</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -73,7 +72,7 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          {/* Teks Struk / Nota */}
+          {}
           <div style={cardStyle}>
             <div style={sectionTitleStyle}>🧾 Teks Footer Struk</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>

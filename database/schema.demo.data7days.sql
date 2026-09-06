@@ -1,17 +1,7 @@
--- =============================================
--- DATA DUMMY TAMBAHAN: 7 Hari Terakhir (untuk Dashboard & Grafik)
--- Jalankan SETELAH schema.demo.sql (database aktif = test)
--- Semua tanggal pakai NOW()/CURDATE() supaya selalu "7 hari terakhir"
--- relatif ke kapan script ini dijalankan, bukan tanggal tetap.
--- =============================================
 
 USE `test`;
 
--- =============================================
--- PENJUALAN: 14 transaksi tersebar di 7 hari terakhir
--- =============================================
 
--- H-6
 INSERT INTO penjualan (nama_pelanggan, kasir_id, metode_bayar, subtotal, diskon, total, total_dibayar, status, created_at)
 VALUES ('Umum', 1, 'tunai', 225000, 0, 225000, 225000, 'lunas', NOW() - INTERVAL 6 DAY);
 SET @p1 = LAST_INSERT_ID();
@@ -25,14 +15,12 @@ INSERT INTO detail_penjualan (penjualan_id, barang_id, qty, harga_jual, harga_be
 (@p2, 4, 2, 65000, 55000),
 (@p2, 6, 60, 900, 700);
 
--- H-5
 INSERT INTO penjualan (nama_pelanggan, kasir_id, metode_bayar, subtotal, diskon, total, total_dibayar, status, created_at)
 VALUES ('Umum', 1, 'qris', 95000, 0, 95000, 95000, 'lunas', NOW() - INTERVAL 5 DAY + INTERVAL 2 HOUR);
 SET @p3 = LAST_INSERT_ID();
 INSERT INTO detail_penjualan (penjualan_id, barang_id, qty, harga_jual, harga_beli) VALUES
 (@p3, 5, 0.65, 145000, 125000);
 
--- H-4
 INSERT INTO penjualan (pelanggan_id, nama_pelanggan, kasir_id, metode_bayar, subtotal, diskon, total, total_dibayar, status, created_at)
 VALUES ((SELECT id FROM pelanggan WHERE nama = 'CV. Karya Bangun' LIMIT 1), 'CV. Karya Bangun', 1, 'hutang', 950000, 50000, 900000, 400000, 'belum_lunas', NOW() - INTERVAL 4 DAY + INTERVAL 1 HOUR);
 SET @p4 = LAST_INSERT_ID();
@@ -47,7 +35,6 @@ SET @p5 = LAST_INSERT_ID();
 INSERT INTO detail_penjualan (penjualan_id, barang_id, qty, harga_jual, harga_beli) VALUES
 (@p5, 7, 1, 55000, 45000);
 
--- H-3
 INSERT INTO penjualan (nama_pelanggan, kasir_id, metode_bayar, subtotal, diskon, total, total_dibayar, status, created_at)
 VALUES ('Umum', 1, 'transfer', 130000, 5000, 125000, 125000, 'lunas', NOW() - INTERVAL 3 DAY + INTERVAL 2 HOUR);
 SET @p6 = LAST_INSERT_ID();
@@ -61,7 +48,6 @@ SET @p7 = LAST_INSERT_ID();
 INSERT INTO detail_penjualan (penjualan_id, barang_id, qty, harga_jual, harga_beli) VALUES
 (@p7, 2, 1.2, 250000, 200000);
 
--- H-2
 INSERT INTO penjualan (nama_pelanggan, kasir_id, metode_bayar, subtotal, diskon, total, total_dibayar, status, created_at)
 VALUES ('Umum', 1, 'tunai', 90000, 0, 90000, 90000, 'lunas', NOW() - INTERVAL 2 DAY + INTERVAL 1 HOUR);
 SET @p8 = LAST_INSERT_ID();
@@ -74,7 +60,6 @@ SET @p9 = LAST_INSERT_ID();
 INSERT INTO detail_penjualan (penjualan_id, barang_id, qty, harga_jual, harga_beli) VALUES
 (@p9, 1, 2, 75000, 68000);
 
--- H-1
 INSERT INTO penjualan (pelanggan_id, nama_pelanggan, kasir_id, metode_bayar, subtotal, diskon, total, total_dibayar, status, created_at)
 VALUES ((SELECT id FROM pelanggan WHERE nama = 'CV. Karya Bangun' LIMIT 1), 'CV. Karya Bangun', 1, 'transfer', 570000, 20000, 550000, 550000, 'lunas', NOW() - INTERVAL 1 DAY + INTERVAL 2 HOUR);
 SET @p10 = LAST_INSERT_ID();
@@ -89,7 +74,6 @@ INSERT INTO detail_penjualan (penjualan_id, barang_id, qty, harga_jual, harga_be
 (@p11, 7, 1, 55000, 45000),
 (@p11, 6, 22, 900, 700);
 
--- Hari ini (H-0)
 INSERT INTO penjualan (nama_pelanggan, kasir_id, metode_bayar, subtotal, diskon, total, total_dibayar, status, created_at)
 VALUES ('Umum', 1, 'tunai', 145000, 0, 145000, 145000, 'lunas', NOW() - INTERVAL 3 HOUR);
 SET @p12 = LAST_INSERT_ID();
@@ -109,9 +93,6 @@ SET @p14 = LAST_INSERT_ID();
 INSERT INTO detail_penjualan (penjualan_id, barang_id, qty, harga_jual, harga_beli) VALUES
 (@p14, 9, 2, 40000, 32000);
 
--- =============================================
--- PEMBELIAN: 4 transaksi restock dalam 7 hari terakhir
--- =============================================
 INSERT INTO pembelian (supplier_id, total, total_dibayar, status, dibuat_oleh, created_at)
 VALUES (1, 3400000, 3400000, 'lunas', 1, NOW() - INTERVAL 5 DAY);
 SET @b1 = LAST_INSERT_ID();
@@ -136,9 +117,6 @@ SET @b4 = LAST_INSERT_ID();
 INSERT INTO detail_pembelian (pembelian_id, barang_id, qty, harga_beli) VALUES
 (@b4, 9, 20, 35000);
 
--- =============================================
--- OPERASIONAL: biaya harian dalam 7 hari terakhir
--- =============================================
 INSERT INTO operasional (tanggal, kategori, keterangan, jumlah, dibuat_oleh, created_at) VALUES
 (CURDATE() - INTERVAL 6 DAY, 'listrik',  'Tagihan listrik toko',      350000, 1, NOW() - INTERVAL 6 DAY),
 (CURDATE() - INTERVAL 5 DAY, 'gaji',     'Gaji harian karyawan',      150000, 1, NOW() - INTERVAL 5 DAY),
