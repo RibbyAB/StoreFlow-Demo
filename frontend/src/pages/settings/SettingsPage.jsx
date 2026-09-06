@@ -10,7 +10,6 @@ export default function SettingsPage() {
   const [form, setForm] = useState(pengaturan);
   const [saving, setSaving] = useState(false);
 
-
   useEffect(() => { setForm(pengaturan); }, [pengaturan]);
 
   const ubah = (field, value) => setForm(prev => ({ ...prev, [field]: value }));

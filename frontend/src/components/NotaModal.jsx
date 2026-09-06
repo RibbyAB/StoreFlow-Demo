@@ -10,7 +10,6 @@ import useIsMobile from '../hooks/useIsMobile';
 const formatRp = (n) =>
   new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(n || 0);
 
-
 export default function NotaModal({ transaksiId, nomorHarian, onClose, onLunasSuccess, hideCicilHint }) {
   const { user } = useAuth();
   const { pengaturan } = usePengaturan();
@@ -35,12 +34,10 @@ export default function NotaModal({ transaksiId, nomorHarian, onClose, onLunasSu
   const [namaEdit,      setNamaEdit]    = useState('');
   const [savingNama,    setSavingNama]  = useState(false);
 
-
   const [showCicilPanel, setShowCicilPanel] = useState(false);
   const [jumlahCicil,    setJumlahCicil]    = useState('');
   const [prosesCicil,    setProsesCicil]    = useState(false);
   const [cicilanList,    setCicilanList]    = useState([]);
-
 
   const muatDetail = useCallback(() => {
     if (!transaksiId) return;
@@ -67,7 +64,6 @@ export default function NotaModal({ transaksiId, nomorHarian, onClose, onLunasSu
   }, [transaksiId]);
 
   useEffect(() => { muatDetail(); }, [muatDetail]);
-
 
   const handleCicilan = async () => {
     const jml = Number(jumlahCicil);
@@ -102,7 +98,6 @@ export default function NotaModal({ transaksiId, nomorHarian, onClose, onLunasSu
       setProsesCicil(false);
     }
   };
-
 
   const cetak = () => {
     if (!data) return;
@@ -171,7 +166,6 @@ ${pengaturan?.footer_nota2 ? `<p class="notice" style="font-weight:900;">${penga
     setTimeout(() => { w.print(); w.close(); }, 400);
   };
 
-
   const simpanNamaPelanggan = async () => {
     const namaFinal = namaEdit.trim() || 'Pelanggan Umum';
     setSavingNama(true);
@@ -208,7 +202,6 @@ ${pengaturan?.footer_nota2 ? `<p class="notice" style="font-weight:900;">${penga
     }
   };
 
-
   const handleBatalkan = async () => {
     setProsesBatal(true);
     setError('');
@@ -228,7 +221,6 @@ ${pengaturan?.footer_nota2 ? `<p class="notice" style="font-weight:900;">${penga
       setProsesBatal(false);
     }
   };
-
 
   const handleHapus = () => {
     toast((t) => (
@@ -269,7 +261,6 @@ ${pengaturan?.footer_nota2 ? `<p class="notice" style="font-weight:900;">${penga
       setProsesHapus(false);
     }
   };
-
 
   const isHutang     = data?.metode_bayar === 'hutang' && data?.status !== 'lunas' && data?.status !== 'dibatalkan';
   const isUmum       = !data?.pelanggan || data.pelanggan.trim() === '' || data.pelanggan.trim().toLowerCase().includes('umum');

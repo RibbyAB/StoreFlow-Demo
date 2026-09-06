@@ -41,7 +41,6 @@ const formatTanggal = (isoString) => {
 
 const hariIniISO = () => new Date(Date.now() + 7 * 60 * 60 * 1000).toISOString().split('T')[0];
 
-
 const getInfoJatuhTempo = (tanggal) => {
   const hariIni = new Date(); hariIni.setHours(0, 0, 0, 0);
   const jt = new Date(tanggal); jt.setHours(0, 0, 0, 0);
@@ -106,9 +105,7 @@ export default function DashboardPage() {
     muatDashboard();
     muatJatuhTempo();
 
-
     const interval = setInterval(() => muatDashboard(true), 30000);
-
 
     const onFocus = () => muatDashboard(true);
     window.addEventListener('focus', onFocus);

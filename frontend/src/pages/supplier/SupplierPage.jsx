@@ -11,7 +11,6 @@ const formatTgl = (d) =>
 
 const formKosong = { nama: '', telepon: '', alamat: '', keterangan: '' };
 
-
 function FormModal({ supplier, onSave, onClose }) {
   const [form,   setForm]   = useState(supplier || formKosong);
   const [saving, setSaving] = useState(false);
@@ -85,7 +84,6 @@ function FormModal({ supplier, onSave, onClose }) {
     </div>
   );
 }
-
 
 function AssignBarangModal({ supplier, onClose, onSaved }) {
   const [semuaBarang, setSemuaBarang] = useState([]);
@@ -201,7 +199,6 @@ function AssignBarangModal({ supplier, onClose, onSaved }) {
     </div>
   );
 }
-
 
 function DetailModal({ supplier, onClose, onEdit }) {
   const isMobile = useIsMobile();
@@ -328,7 +325,6 @@ function DetailModal({ supplier, onClose, onEdit }) {
     </div>
   );
 }
-
 
 export default function SupplierPage() {
   const [data,     setData]     = useState([]);

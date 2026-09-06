@@ -4,7 +4,6 @@ import { useAuth } from './AuthContext';
 
 const PengaturanContext = createContext(null);
 
-
 const DEFAULT_PENGATURAN = {
   nama_toko: 'Nama Toko',
   alamat: null,
@@ -24,7 +23,6 @@ export const PengaturanProvider = ({ children }) => {
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
-
 
   useEffect(() => {
     if (user) muatPengaturan();

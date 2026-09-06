@@ -15,11 +15,9 @@ app.use(cors({
       return callback(null, true);
     }
 
-
     if (/^https?:\/\/(192\.168|10\.|172\.(1[6-9]|2\d|3[0-1]))\.\d{1,3}\.\d{1,3}(:\d+)?$/.test(origin)) {
       return callback(null, true);
     }
-
 
     if (
       /store-?flow/.test(origin.toLowerCase()) &&
@@ -37,7 +35,6 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-
 app.use('/api/auth',       require('./routes/authRoutes'));
 app.use('/api/barang',     require('./routes/barangRoutes'));
 app.use('/api/supplier',   require('./routes/supplierRoutes'));
@@ -50,11 +47,9 @@ app.use('/api/pelanggan-ledger', require('./routes/pelangganLedgerRoutes'));
 app.use('/api/operasional', require('./routes/operasionalRoutes'));
 app.use('/api/pengaturan', require('./routes/pengaturanRoutes'));
 
-
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Server berjalan dengan baik', timestamp: new Date() });
 });
-
 
 app.use((err, req, res, next) => {
   console.error('[ERROR]', err.stack);
@@ -63,7 +58,6 @@ app.use((err, req, res, next) => {
     message: err.message || 'Terjadi kesalahan pada server'
   });
 });
-
 
 if (require.main === module) {
   const PORT = process.env.PORT || 8080;

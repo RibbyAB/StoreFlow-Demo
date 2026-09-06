@@ -1,6 +1,5 @@
 const db = require('../config/database');
 
-
 const getDaftarPelanggan = async (req, res) => {
   try {
     const [rows] = await db.query(`
@@ -31,7 +30,6 @@ const getDaftarPelanggan = async (req, res) => {
   }
 };
 
-
 const getDetailPelanggan = async (req, res) => {
   try {
     const nama = (req.params.nama || '').trim();
@@ -59,7 +57,6 @@ const getDetailPelanggan = async (req, res) => {
     if (transaksi.length === 0) {
       return res.status(404).json({ success: false, message: 'Tidak ada transaksi untuk pelanggan ini.' });
     }
-
 
     let saldoBerjalan = 0;
     const transaksiDenganSaldo = transaksi.map(t => {

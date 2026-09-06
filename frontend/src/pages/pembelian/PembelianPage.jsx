@@ -11,7 +11,6 @@ const formatRp = (n) =>
 const formatTgl = (d) =>
   new Date(d).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
 
-
 const getInfoJatuhTempo = (tanggal) => {
   const hariIni = new Date(); hariIni.setHours(0, 0, 0, 0);
   const jt = new Date(tanggal); jt.setHours(0, 0, 0, 0);
@@ -22,7 +21,6 @@ const getInfoJatuhTempo = (tanggal) => {
   if (selisihHari <= 7)  return { icon: '🟡', color: '#d97706', label: `${selisihHari} hari lagi`, urgensi: 1, selisihHari };
   return { icon: '⚪', color: '#94a3b8', label: '', urgensi: 0, selisihHari };
 };
-
 
 function DetailModal({ pembelian, onClose, onRefresh }) {
   const { user } = useAuth();
@@ -81,7 +79,6 @@ function DetailModal({ pembelian, onClose, onRefresh }) {
           duration: 3000,
           position: 'top-center',
         });
-
 
         pembelian.status = 'dibatalkan';
         setBatalBerhasil(true);
@@ -369,7 +366,6 @@ function DetailModal({ pembelian, onClose, onRefresh }) {
   );
 }
 
-
 export default function PembelianPage() {
   const isMobile = useIsMobile();
 
@@ -378,7 +374,6 @@ export default function PembelianPage() {
   const [riwayat, setRiwayat]           = useState([]);
   const [showLunasGroup, setShowLunasGroup] = useState(false);
   const [loadRiwayat, setLoadRiwayat]   = useState(true);
-
 
   const [supplierId, setSupplierId]   = useState(() => localStorage.getItem('draftPembelianSupplier') || '');
   const [supplierSearch, setSupplierSearch] = useState('');
@@ -394,7 +389,6 @@ export default function PembelianPage() {
     return saved ? JSON.parse(saved) : [];
   });
 
-
   const [search, setSearch]           = useState('');
   const [showDrop, setShowDrop]       = useState(false);
   const [showManualForm, setShowManualForm] = useState(false);
@@ -405,17 +399,14 @@ export default function PembelianPage() {
   const [searchSupplierQuick, setSearchSupplierQuick] = useState('');
   const searchRef                     = useRef();
 
-
   const [panelFilter,   setPanelFilter]   = useState('semua');
   const [panelCollapse, setPanelCollapse] = useState(false);
-
 
   const [saving, setSaving]           = useState(false);
   const [error, setError]             = useState('');
   const [sukses, setSukses]           = useState('');
   const [tab, setTab] = useState(() => localStorage.getItem('pembelianTab') || 'form');
   const [detailItem, setDetailItem]   = useState(null);
-
 
   const [selectedRiwayat, setSelectedRiwayat] = useState([]);
   const [melunasiBatch, setMelunasiBatch]     = useState(false);
@@ -425,7 +416,6 @@ export default function PembelianPage() {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
   });
   const [tampilkanSemuaBulan, setTampilkanSemuaBulan] = useState(false);
-
 
   const muatData = () => {
     getBarang({ supplier_id: supplierId }).then(r => {
@@ -484,17 +474,14 @@ export default function PembelianPage() {
     localStorage.setItem('pembelianTab', tab);
   }, [tab]);
 
-
   useEffect(() => {
     localStorage.setItem('draftPembelian', JSON.stringify(items));
   }, [items]);
-
 
   useEffect(() => {
     if (supplierId) localStorage.setItem('draftPembelianSupplier', supplierId);
     else localStorage.removeItem('draftPembelianSupplier');
   }, [supplierId]);
-
 
   useEffect(() => {
     localStorage.setItem('draftPembelianStatus', status);
@@ -511,13 +498,11 @@ export default function PembelianPage() {
 
   useEffect(() => { muatData(); }, [supplierId]);
 
-
   useEffect(() => {
     if (!supplierId) { setSupplierSearch(''); return; }
     const s = supplierList.find(sp => String(sp.id) === String(supplierId));
     if (s) setSupplierSearch(s.nama);
   }, [supplierId, supplierList]);
-
 
   useEffect(() => {
     const handler = (e) => { if (supplierInputRef.current && !supplierInputRef.current.contains(e.target)) setShowSupplierDropdown(false); };
@@ -525,13 +510,11 @@ export default function PembelianPage() {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-
   useEffect(() => {
     const h = (e) => { if (searchRef.current && !searchRef.current.contains(e.target)) setShowDrop(false); };
     document.addEventListener('mousedown', h);
     return () => document.removeEventListener('mousedown', h);
   }, []);
-
 
   const hasilCari = semuaBarang.filter(b => {
     if (search.length === 0) return false;
@@ -539,7 +522,6 @@ export default function PembelianPage() {
     const kataKata = search.toLowerCase().trim().split(/\s+/);
     return kataKata.every(kata => gabungan.includes(kata));
   }).slice(0, 8);
-
 
   const tambahItem = (barang) => {
     setItems(prev => {
@@ -558,7 +540,6 @@ export default function PembelianPage() {
     setError('');
   };
 
-
   const tambahItemManual = () => {
     if (!manualForm.nama.trim()) { setError('Nama item manual harus diisi.'); return; }
     setItems(prev => [...prev, {
@@ -573,7 +554,6 @@ export default function PembelianPage() {
     setShowManualForm(false);
     setError('');
   };
-
 
   const simpanQuickBarang = async () => {
     if (!quickBarangForm.nama.trim()) { setError('Nama barang harus diisi.'); return; }
@@ -604,7 +584,6 @@ export default function PembelianPage() {
     }
   };
 
-
   const updateItem = (barang_id, field, val) => {
     setItems(prev => prev.map(i => {
       if (i.barang_id !== barang_id) return i;
@@ -614,7 +593,6 @@ export default function PembelianPage() {
       }
 
       if (field === 'qty') {
-
 
         return { ...i, qty: val };
       }
@@ -641,11 +619,9 @@ export default function PembelianPage() {
     return Math.round(qty * 100) / 100;
   };
 
-
   const finalisasiQty = (barang_id) => {
     setItems(prev => prev.map(i => i.barang_id === barang_id ? { ...i, qty: parseQtyInput(i.qty) } : i));
   };
-
 
   const setQtyLangsung = (barang_id, num) => {
     const qty = Math.round(num * 100) / 100;
@@ -658,7 +634,6 @@ export default function PembelianPage() {
     if (items.length === 0) { setError('Tambahkan minimal 1 barang.'); return; }
     setSaving(true); setError(''); setSukses('');
     try {
-
 
       const itemsFinal = items.map(i => {
         const qty = parseQtyInput(i.qty);
@@ -694,7 +669,6 @@ export default function PembelianPage() {
 
   const handleSupplierChange = (e) => {
     const newId = e.target.value;
-
 
     if (items.length === 0) {
       setSupplierId(newId);
@@ -1112,7 +1086,6 @@ export default function PembelianPage() {
                               const statusClr   = habis ? '#dc2626' : menipis ? '#92400e' : '#166534';
                               const rowBg       = habis ? '#fff8f8' : menipis ? '#fffdf0' : '#fff';
                               const sudahDiKeranjang = items.some(i => i.barang_id === b.id);
-
 
                               const maxStok = Math.max(...semuaBarang.map(x => x.stok), 1);
                               const barPct  = Math.min((b.stok / maxStok) * 100, 100);
@@ -1563,13 +1536,11 @@ export default function PembelianPage() {
               {(() => {
                 const riwayatFiltered = riwayat.filter(r => !filterSupplierRiwayat || (r.supplier || '').toLowerCase().includes(filterSupplierRiwayat.toLowerCase()));
 
-
                 const overdue = riwayatFiltered
                   .filter(r => r.status === 'hutang' && r.jatuh_tempo && getInfoJatuhTempo(r.jatuh_tempo).urgensi === 3)
                   .sort((a, b) => new Date(a.jatuh_tempo) - new Date(b.jatuh_tempo));
 
                 const overdueIds = new Set(overdue.map(r => r.id));
-
 
                 const tanggalInvalid = riwayatFiltered.filter(r => {
                   if (overdueIds.has(r.id)) return false;
@@ -1578,11 +1549,9 @@ export default function PembelianPage() {
                 });
                 const invalidIds = new Set(tanggalInvalid.map(r => r.id));
 
-
                 const lunasSemua = riwayatFiltered
                   .filter(r => {
                     if (r.status !== 'lunas' || invalidIds.has(r.id)) return false;
-
 
                     const tglAcuan = r.jatuh_tempo || r.created_at;
                     const d = new Date(tglAcuan);
@@ -1598,7 +1567,6 @@ export default function PembelianPage() {
                 const lunasIds = new Set(lunasSemua.map(r => r.id));
 
                 const sisanya = riwayatFiltered.filter(r => !overdueIds.has(r.id) && !lunasIds.has(r.id) && !invalidIds.has(r.id));
-
 
                 const grup = {};
                 sisanya.forEach(r => {

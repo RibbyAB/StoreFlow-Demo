@@ -8,7 +8,6 @@ import NotaModal from '../../components/NotaModal';
 import { Toaster, toast } from 'react-hot-toast';
 import useIsMobile from '../../hooks/useIsMobile';
 
-
 const formatRp = (n) =>
   new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(n || 0);
 
@@ -33,7 +32,6 @@ const getTodayLocal = () => {
 const todayStr = getTodayLocal();
 const bulanStr = getTodayLocal().slice(0, 7);
 
-
 const downloadCSV = (rows, filename) => {
   if (!rows || rows.length === 0) return;
   const headers = Object.keys(rows[0]);
@@ -54,7 +52,6 @@ const downloadCSV = (rows, filename) => {
   a.click();
   URL.revokeObjectURL(url);
 };
-
 
 const cetakRekapHarian = (harian, tanggal) => {
   if (!harian) return;
@@ -209,7 +206,6 @@ const cetakRekapHarian = (harian, tanggal) => {
   setTimeout(() => { w.print(); w.close(); }, 400);
 };
 
-
 const cetakLabaRugiBulanan = (labaRugi, bulan, tren12) => {
   if (!labaRugi) return;
   const fmt = (n) =>
@@ -352,7 +348,6 @@ const cetakLabaRugiBulanan = (labaRugi, bulan, tren12) => {
   setTimeout(() => { w.print(); w.close(); }, 400);
 };
 
-
 const KartuMetrik = ({ label, nilai, sub, icon, warna, trend }) => {
   const isMobile = useIsMobile();
   return (
@@ -393,7 +388,6 @@ const TooltipRp = ({ active, payload, label }) => {
     </div>
   );
 };
-
 
 const KATEGORI_OPERASIONAL = [
   { value: 'gaji',    label: '👤 Gaji Karyawan' },
@@ -625,7 +619,6 @@ export default function LaporanPage() {
     } finally { setLoad('tren', false); }
   }, []);
 
-
   const muatTrenHarianBulan = useCallback(async (b) => {
     setLoad('trenHarian', true);
     try {
@@ -834,7 +827,6 @@ export default function LaporanPage() {
               <SectionTitle>📆 Pendapatan & Laba Harian — {bulanList[parseInt(bulan.split('-')[1]) - 1]} {bulan.split('-')[0]}</SectionTitle>
               {!loading.trenHarian && trenHarianBulan.length > 0 && (() => {
                 const totalPendapatan = trenHarianBulan.reduce((s, r) => s + Number(r.pendapatan), 0);
-
 
                 const hariSudahLewat = trenHarianBulan.filter(r => !r.belumTerjadi).length || trenHarianBulan.length;
                 const rataRata = totalPendapatan / hariSudahLewat;

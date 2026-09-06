@@ -1,9 +1,7 @@
 const db = require('../config/database');
 
-
 const WIB = `CONVERT_TZ(created_at, '+00:00', '+07:00')`;
 const dateWIB = `DATE(CONVERT_TZ(created_at, '+00:00', '+07:00'))`;
-
 
 const laporanHarian = async (req, res) => {
   try {
@@ -14,7 +12,6 @@ const laporanHarian = async (req, res) => {
       const wib = new Date(now.getTime() + 7 * 60 * 60 * 1000);
       return wib.toISOString().split('T')[0];
     })();
-
 
     const [ringkasan] = await db.query(`
       SELECT
@@ -45,7 +42,6 @@ const laporanHarian = async (req, res) => {
         AND p.status != 'dibatalkan'
     `, [tanggal]);
 
-
     const [cicilanHariIni] = await db.query(`
       SELECT COALESCE(SUM(jumlah), 0) AS total_cicilan
       FROM cicilan_penjualan
@@ -53,7 +49,6 @@ const laporanHarian = async (req, res) => {
     `, [tanggal]);
 
     ringkasan[0].total_pendapatan = Number(ringkasan[0].total_pendapatan_lunas) + Number(cicilanHariIni[0].total_cicilan);
-
 
     const [hppHarian] = await db.query(`
       SELECT COALESCE(SUM(dp.qty * dp.harga_beli), 0) AS total_hpp
@@ -120,7 +115,6 @@ const laporanHarian = async (req, res) => {
   }
 };
 
-
 const labaRugi = async (req, res) => {
   try {
     const bulan = req.query.bulan || (() => {
@@ -129,7 +123,6 @@ const labaRugi = async (req, res) => {
       return wib.toISOString().slice(0, 7);
     })();
     const [tahun, bln] = bulan.split('-');
-
 
     const [penjualan] = await db.query(`
       SELECT COALESCE(SUM(p.total), 0) AS total_penjualan
@@ -151,7 +144,6 @@ const labaRugi = async (req, res) => {
         AND NOT EXISTS (SELECT 1 FROM cicilan_penjualan cp WHERE cp.penjualan_id = p.id)
     `, [tahun, bln]);
 
-
     const [pembelian] = await db.query(`
       SELECT COALESCE(SUM(p.total), 0) AS total_pembelian
       FROM pembelian p
@@ -161,20 +153,17 @@ const labaRugi = async (req, res) => {
         AND NOT EXISTS (SELECT 1 FROM cicilan_pembelian cp WHERE cp.pembelian_id = p.id)
     `, [tahun, bln]);
 
-
     const [cicilanPembelianBulanIni] = await db.query(`
       SELECT COALESCE(SUM(jumlah), 0) AS total_cicilan
       FROM cicilan_pembelian
       WHERE YEAR(tanggal) = ? AND MONTH(tanggal) = ?
     `, [tahun, bln]);
 
-
     const [cicilanPenjualanBulanIni] = await db.query(`
       SELECT COALESCE(SUM(jumlah), 0) AS total_cicilan
       FROM cicilan_penjualan
       WHERE YEAR(tanggal) = ? AND MONTH(tanggal) = ?
     `, [tahun, bln]);
-
 
     const [piutang] = await db.query(`
       SELECT COALESCE(SUM(total), 0) AS total_piutang
@@ -184,13 +173,11 @@ const labaRugi = async (req, res) => {
         AND status = 'belum_lunas'
     `, [tahun, bln]);
 
-
     const [operasional] = await db.query(`
       SELECT COALESCE(SUM(jumlah), 0) AS total_operasional
       FROM operasional
       WHERE YEAR(tanggal) = ? AND MONTH(tanggal) = ?
     `, [tahun, bln]);
-
 
     const [hppCicilanBulanIni] = await db.query(`
       SELECT COALESCE(SUM(cp.jumlah * (hpp_tx.total_hpp / p.total)), 0) AS total_hpp_cicilan
@@ -232,7 +219,6 @@ const labaRugi = async (req, res) => {
   }
 };
 
-
 const stokMenipis = async (req, res) => {
   try {
     const [rows] = await db.query(`
@@ -246,7 +232,6 @@ const stokMenipis = async (req, res) => {
     res.status(500).json({ success: false, message: 'Gagal mengambil data stok menipis.' });
   }
 };
-
 
 const barangTerlaris = async (req, res) => {
   try {
@@ -270,7 +255,6 @@ const barangTerlaris = async (req, res) => {
       GROUP BY b.id, b.nama, b.satuan
     `, [tahun, bulan]);
 
-
     const [cicilanRows] = await db.query(`
       SELECT
         b.id, b.nama, b.satuan,
@@ -283,7 +267,6 @@ const barangTerlaris = async (req, res) => {
       WHERE YEAR(cp.tanggal) = ? AND MONTH(cp.tanggal) = ? AND p.total > 0
       GROUP BY b.id, b.nama, b.satuan
     `, [tahun, bulan]);
-
 
     const gabungan = {};
     for (const r of rows) {

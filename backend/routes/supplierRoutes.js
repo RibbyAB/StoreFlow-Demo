@@ -1,4 +1,3 @@
-
 const express = require('express');
 const router = express.Router();
 const db = require('../config/database');
@@ -33,7 +32,6 @@ router.delete('/:id', async (req, res) => {
   await db.query('DELETE FROM supplier WHERE id = ?', [req.params.id]);
   res.json({ success: true, message: 'Supplier berhasil dihapus.' });
 });
-
 
 router.put('/:id/barang', async (req, res) => {
   const conn = await db.getConnection();

@@ -1,6 +1,5 @@
 import axios from 'axios';
 
-
 const hostname = window.location.hostname;
 const isLocalNetwork =
   hostname === 'localhost' ||
@@ -38,7 +37,6 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
 
-
     const config = error.config;
     const isNetworkOrServerError = !error.response || error.response.status >= 500;
     const isLogin = config?.url?.includes('/auth/login');
@@ -52,10 +50,8 @@ api.interceptors.response.use(
   }
 );
 
-
 export const login = (email, password) =>
   api.post('/auth/login', { email, password });
-
 
 export const getBarang = (params) => {
   return api.get('/barang', { params });
@@ -78,7 +74,6 @@ export const deleteBarang = (id) =>
 
 export const restoreBarang = (id) =>
   api.put(`/barang/${id}/restore`);
-
 
 export const getPenjualan = (params = {}) =>
   api.get('/penjualan', { params });
@@ -110,7 +105,6 @@ export const getCicilanPenjualan = (id) =>
 export const hapusCicilanPenjualan = (id, cicilanId) =>
   api.delete(`/penjualan/${id}/cicil/${cicilanId}`);
 
-
 export const getPembelian = () =>
   api.get('/pembelian');
 
@@ -135,7 +129,6 @@ export const batalkanPembelian = (id, data = {}) =>
 export const hapusPembelian = (id) =>
   api.delete(`/pembelian/${id}`);
 
-
 export const getSupplier = () =>
   api.get('/supplier');
 
@@ -156,7 +149,6 @@ export const createSupplier = (data) =>
 
 export const getPelanggan = () =>
   api.get('/pelanggan');
-
 
 export const getDashboard = () =>
   api.get('/dashboard');
@@ -184,7 +176,6 @@ export const getLaporanLabaRugi = (bulan) =>
 
 export const getStokMenipis = () =>
   api.get('/laporan/stok-menipis');
-
 
 export const getPengaturan = () =>
   api.get('/pengaturan');

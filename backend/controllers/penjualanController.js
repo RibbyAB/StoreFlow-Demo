@@ -1,6 +1,5 @@
 const db = require('../config/database');
 
-
 const createPenjualan = async (req, res) => {
   const conn = await db.getConnection();
   try {
@@ -12,16 +11,13 @@ const createPenjualan = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Minimal 1 item harus diisi.' });
     }
 
-
     const metodeFinal = metode_bayar || 'tunai';
     const statusFinal = metodeFinal === 'hutang' ? 'belum_lunas' : 'lunas';
 
     const subtotal = items.reduce((sum, item) => sum + (item.qty * item.harga_jual), 0);
     const total    = subtotal - Number(diskon);
 
-
     const totalDibayarAwal = statusFinal === 'lunas' ? total : 0;
-
 
     let createdAtFinal = null;
     if (tanggal) {
@@ -58,7 +54,6 @@ const createPenjualan = async (req, res) => {
       if (barang.length === 0) throw new Error(`Barang ID ${item.barang_id} tidak ditemukan.`);
       if (barang[0].stok < item.qty) throw new Error(`Stok ${barang[0].nama} tidak cukup. Tersedia: ${barang[0].stok}`);
 
-
       await conn.query(
         'INSERT INTO detail_penjualan (penjualan_id, barang_id, qty, harga_jual, harga_beli) VALUES (?, ?, ?, ?, ?)',
         [penjualanId, item.barang_id, item.qty, item.harga_jual, barang[0].harga_beli]
@@ -83,7 +78,6 @@ const createPenjualan = async (req, res) => {
     conn.release();
   }
 };
-
 
 const editPenjualan = async (req, res) => {
   const conn = await db.getConnection();
@@ -115,13 +109,11 @@ const editPenjualan = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Transaksi ini sudah pernah dicicil, tidak bisa diedit. Hapus dulu semua riwayat cicilannya kalau tetap mau edit.' });
     }
 
-
     const [itemLama] = await conn.query('SELECT barang_id, qty FROM detail_penjualan WHERE penjualan_id = ?', [req.params.id]);
     for (const it of itemLama) {
       await conn.query('UPDATE barang SET stok = stok + ? WHERE id = ?', [it.qty, it.barang_id]);
     }
     await conn.query('DELETE FROM detail_penjualan WHERE penjualan_id = ?', [req.params.id]);
-
 
     for (const item of items) {
       if (item.qty <= 0) throw new Error('Qty barang tidak valid.');
@@ -137,12 +129,10 @@ const editPenjualan = async (req, res) => {
       await conn.query('UPDATE barang SET stok = stok - ? WHERE id = ?', [item.qty, item.barang_id]);
     }
 
-
     const subtotalBaru = items.reduce((sum, item) => sum + (item.qty * item.harga_jual), 0);
     const totalBaru    = subtotalBaru - Number(diskon);
     const metodeFinal  = metode_bayar || lama.metode_bayar;
     const statusFinal  = metodeFinal === 'hutang' ? 'belum_lunas' : 'lunas';
-
 
     const totalDibayarBaru = statusFinal === 'lunas' ? totalBaru : 0;
 
@@ -162,7 +152,6 @@ const editPenjualan = async (req, res) => {
   }
 };
 
-
 const konfirmasiPelunasan = async (req, res) => {
   try {
     const [cek] = await db.query(
@@ -179,10 +168,8 @@ const konfirmasiPelunasan = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Transaksi yang sudah dibatalkan tidak bisa dilunasi.' });
     }
 
-
     const { metode_bayar } = req.body;
     const metodeFinal = metode_bayar || 'tunai';
-
 
     await db.query(
       "UPDATE penjualan SET status = 'lunas', metode_bayar = ?, total_dibayar = total, tgl_pelunasan = NOW() WHERE id = ?",
@@ -201,7 +188,6 @@ const konfirmasiPelunasan = async (req, res) => {
   }
 };
 
-
 const getCicilanPenjualan = async (req, res) => {
   try {
     const [rows] = await db.query(`
@@ -216,7 +202,6 @@ const getCicilanPenjualan = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
-
 
 const cicilPenjualan = async (req, res) => {
   const conn = await db.getConnection();
@@ -278,7 +263,6 @@ const cicilPenjualan = async (req, res) => {
   }
 };
 
-
 const hapusCicilanPenjualan = async (req, res) => {
   const conn = await db.getConnection();
   try {
@@ -308,7 +292,6 @@ const hapusCicilanPenjualan = async (req, res) => {
 
     const totalDibayarBaru = Math.max(0, Number(p.total_dibayar) - Number(cicilRows[0].jumlah));
 
-
     const masihLunas = totalDibayarBaru >= Number(p.total) - 0.5;
     await conn.query(
       masihLunas
@@ -327,7 +310,6 @@ const hapusCicilanPenjualan = async (req, res) => {
     conn.release();
   }
 };
-
 
 const editNamaPelanggan = async (req, res) => {
   try {
@@ -349,7 +331,6 @@ const editNamaPelanggan = async (req, res) => {
   }
 };
 
-
 const batalkanPenjualan = async (req, res) => {
   const conn = await db.getConnection();
   try {
@@ -369,7 +350,6 @@ const batalkanPenjualan = async (req, res) => {
       await conn.rollback();
       return res.status(400).json({ success: false, message: 'Transaksi ini sudah dibatalkan sebelumnya.' });
     }
-
 
     const [items] = await conn.query(
       'SELECT barang_id, qty FROM detail_penjualan WHERE penjualan_id = ?',
@@ -400,7 +380,6 @@ const batalkanPenjualan = async (req, res) => {
     conn.release();
   }
 };
-
 
 const getAllPenjualan = async (req, res) => {
   try {
@@ -439,7 +418,6 @@ const getAllPenjualan = async (req, res) => {
   }
 };
 
-
 const getHutangPelanggan = async (req, res) => {
   try {
     const [rows] = await db.query(`
@@ -455,7 +433,6 @@ const getHutangPelanggan = async (req, res) => {
     res.status(500).json({ success: false, message: 'Gagal mengambil data hutang.' });
   }
 };
-
 
 const getPenjualanById = async (req, res) => {
   try {
@@ -484,7 +461,6 @@ const getPenjualanById = async (req, res) => {
     res.status(500).json({ success: false, message: 'Gagal mengambil detail transaksi.' });
   }
 };
-
 
 const hapusPenjualan = async (req, res) => {
   try {

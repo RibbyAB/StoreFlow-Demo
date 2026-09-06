@@ -1,8 +1,6 @@
 const mysql = require('mysql2/promise');
 
-
 const useSSL = process.env.DB_SSL === 'true';
-
 
 const pool = mysql.createPool({
   host:     process.env.DB_HOST || 'localhost',
@@ -14,7 +12,6 @@ const pool = mysql.createPool({
   connectionLimit: 10,
   queueLimit: 0,
 
-
   timezone: 'Z',
   enableKeepAlive: true,
   keepAliveInitialDelay: 10000,
@@ -25,7 +22,6 @@ const pool = mysql.createPool({
     }
   })
 });
-
 
 (async () => {
   try {

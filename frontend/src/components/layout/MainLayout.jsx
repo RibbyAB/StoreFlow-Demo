@@ -22,9 +22,7 @@ export default function MainLayout() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
 
-
   const [sidebarOpen, setSidebarOpen] = useState(!isMobile);
-
 
   React.useEffect(() => {
     setSidebarOpen(!isMobile);

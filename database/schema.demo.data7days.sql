@@ -1,6 +1,4 @@
-
 USE `test`;
-
 
 INSERT INTO penjualan (nama_pelanggan, kasir_id, metode_bayar, subtotal, diskon, total, total_dibayar, status, created_at)
 VALUES ('Umum', 1, 'tunai', 225000, 0, 225000, 225000, 'lunas', NOW() - INTERVAL 6 DAY);

@@ -15,7 +15,6 @@ const formatRp = (n) =>
     maximumFractionDigits: 0
   }).format(n || 0);
 
-
 function DetailPelangganModal({ nama, onClose }) {
   const isMobile = useIsMobile();
   const { user } = useAuth();
@@ -26,7 +25,6 @@ function DetailPelangganModal({ nama, onClose }) {
   const [selected, setSelected] = useState([]);
 
   const [cicilOpenId, setCicilOpenId] = useState(null);
-
 
   const [riwayatOpenId, setRiwayatOpenId] = useState(null);
   const [notaId, setNotaId] = useState(null);
@@ -65,7 +63,6 @@ function DetailPelangganModal({ nama, onClose }) {
     muatCicilan(transaksiId);
   };
 
-
   const bukaLunasiSemua = (t) => {
     const sisa = Number(t.total) - Number(t.total_dibayar || 0);
     setCicilOpenId(t.id);
@@ -73,7 +70,6 @@ function DetailPelangganModal({ nama, onClose }) {
     setMetodeCicil('tunai');
     muatCicilan(t.id);
   };
-
 
   const toggleRiwayat = (transaksiId) => {
     if (riwayatOpenId === transaksiId) {
@@ -83,7 +79,6 @@ function DetailPelangganModal({ nama, onClose }) {
     setRiwayatOpenId(transaksiId);
     muatCicilan(transaksiId);
   };
-
 
   const muatCicilan = (transaksiId) => {
     getCicilanPenjualan(transaksiId)
@@ -305,7 +300,6 @@ function DetailPelangganModal({ nama, onClose }) {
                     <div
                       onClick={e => {
 
-
                         if (t.status !== 'belum_lunas') return;
                         if (e.target.closest('button') || e.target.tagName === 'INPUT') return;
                         toggleSelect(t.id);
@@ -513,7 +507,6 @@ function DetailPelangganModal({ nama, onClose }) {
     </>
   );
 }
-
 
 export default function PelangganLedgerPage() {
   const isMobile = useIsMobile();

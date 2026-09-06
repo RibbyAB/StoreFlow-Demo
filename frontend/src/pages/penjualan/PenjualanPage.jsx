@@ -21,7 +21,6 @@ const formatRp = (n) =>
 
 const METODE = ['tunai', 'transfer', 'qris', 'hutang'];
 
-
 function StrukModal({ transaksi, onClose }) {
   const ref = useRef();
   const { pengaturan } = usePengaturan();
@@ -143,7 +142,6 @@ ${pengaturan?.footer_nota2 ? `<p class="notice" style="font-weight:900;">${penga
   );
 }
 
-
 export default function PenjualanPage() {
   const { user } = useAuth();
   const isMobile = useIsMobile();
@@ -156,15 +154,12 @@ export default function PenjualanPage() {
     return () => clearInterval(timer);
   }, []);
 
-
   const [semuaBarang, setSemuaBarang] = useState([]);
   const [namaPelangganDikenal, setNamaPelangganDikenal] = useState([]);
-
 
   const [search, setSearch] = useState('');
   const [showDropdown, setShowDropdown] = useState(false);
   const searchRef = useRef();
-
 
   const [keranjang, setKeranjang] = useState(() => {
     const saved = localStorage.getItem('keranjang');
@@ -174,7 +169,6 @@ export default function PenjualanPage() {
   useEffect(() => {
     localStorage.setItem('keranjang', JSON.stringify(keranjang));
   }, [keranjang]);
-
 
   const [diskon, setDiskon] = useState(0);
   const [metode, setMetode] = useState('tunai');
@@ -186,11 +180,9 @@ export default function PenjualanPage() {
   const [tanggalManual, setTanggalManual] = useState('');
   const [showTanggalManual, setShowTanggalManual] = useState(false);
 
-
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [struk, setStruk] = useState(null);
-
 
   const muatBarang = () => {
     getBarang().then(r => setSemuaBarang(r.data.data)).catch(() => {});
@@ -199,12 +191,10 @@ export default function PenjualanPage() {
   useEffect(() => {
     muatBarang();
 
-
     getDaftarPelangganLedger()
       .then(r => setNamaPelangganDikenal((r.data.data || []).map(p => p.nama_tampil)))
       .catch(() => {});
   }, []);
-
 
   useEffect(() => {
     const onFocus = () => muatBarang();
@@ -212,13 +202,11 @@ export default function PenjualanPage() {
     return () => window.removeEventListener('focus', onFocus);
   }, []);
 
-
   useEffect(() => {
     const handler = (e) => { if (searchRef.current && !searchRef.current.contains(e.target)) setShowDropdown(false); };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, []);
-
 
   useEffect(() => {
     const handler = (e) => { if (pelangganInputRef.current && !pelangganInputRef.current.contains(e.target)) setShowSaranPelanggan(false); };
@@ -226,16 +214,13 @@ export default function PenjualanPage() {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-
   const hasilCari = semuaBarang.filter(b => {
     if (search.length === 0) return false;
     const gabungan = `${b.nama || ''} ${b.kode_barang || ''} ${b.kategori || ''}`.toLowerCase();
     const kataKata = search.toLowerCase().trim().split(/\s+/);
 
-
     return kataKata.every(kata => gabungan.includes(kata));
   }).slice(0, 30);
-
 
   const tambahBarang = (barang) => {
     setKeranjang(prev => {
@@ -264,7 +249,6 @@ export default function PenjualanPage() {
     setError('');
   };
 
-
   const parseQtyInput = (val, stokMax) => {
     const str = String(val).trim();
     let qty;
@@ -280,11 +264,9 @@ export default function PenjualanPage() {
     return qty;
   };
 
-
   const updateQty = (barang_id, val) => {
     const item = keranjang.find(k => k.barang_id === barang_id);
     if (!item) return;
-
 
     if (val === '') {
       setKeranjang(prev => prev.map(k => k.barang_id === barang_id ? { ...k, qty: '' } : k));
@@ -293,7 +275,6 @@ export default function PenjualanPage() {
 
     setKeranjang(prev => prev.map(k => k.barang_id === barang_id ? { ...k, qty: val } : k));
   };
-
 
   const setQtyLangsung = (barang_id, num) => {
     const item = keranjang.find(k => k.barang_id === barang_id);
@@ -304,7 +285,6 @@ export default function PenjualanPage() {
     setKeranjang(prev => prev.map(k => k.barang_id === barang_id ? { ...k, qty } : k));
   };
 
-
   const finalisasiQty = (barang_id) => {
     setKeranjang(prev => prev.map(k => {
       if (k.barang_id !== barang_id) return k;
@@ -312,21 +292,17 @@ export default function PenjualanPage() {
     }));
   };
 
-
   const updateHarga = (barang_id, val) => {
     setKeranjang(prev => prev.map(k => k.barang_id === barang_id ? { ...k, harga: Number(val) || 0 } : k));
   };
 
-
   const hapusItem = (barang_id) => setKeranjang(prev => prev.filter(k => k.barang_id !== barang_id));
-
 
   const subtotal = keranjang.reduce((s, k) => s + (Number(k.qty) || 0) * k.harga, 0);
   const totalDiskon = Math.min(subtotal, Number(diskon) || 0);
   const total = subtotal - totalDiskon;
   const kembalian = metode === 'tunai' ? Math.max(0, (Number(bayar) || 0) - total) : 0;
   const kurangBayar = metode === 'tunai' && Number(bayar) > 0 && Number(bayar) < total;
-
 
   const simpan = async () => {
     if (keranjang.length === 0) { setError('Keranjang masih kosong.'); return; }
@@ -353,14 +329,12 @@ export default function PenjualanPage() {
         }))
       };
 
-
       const res = await createPenjualan(payload);
 
       if (res.data.success) {
 
         const dataTerbaru = await getBarang();
         setSemuaBarang(dataTerbaru.data.data);
-
 
         let nomorHarian = res.data.penjualan_id || res.data.data?.id || 'TRANS-NEW';
         try {
@@ -371,7 +345,6 @@ export default function PenjualanPage() {
         } catch {
 
         }
-
 
         setStruk({
           id: nomorHarian,
@@ -385,7 +358,6 @@ export default function PenjualanPage() {
           total,
           bayar: metode === 'tunai' ? (Number(bayar) || total) : total,
         });
-
 
         setKeranjang([]);
         setDiskon(0);

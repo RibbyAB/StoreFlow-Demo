@@ -5,12 +5,10 @@ const { authMiddleware, roleMiddleware } = require('../middleware/authMiddleware
 
 router.use(authMiddleware);
 
-
 router.post('/', async (req, res) => {
   const conn = await db.getConnection();
   try {
     await conn.beginTransaction();
-
 
     const { supplier_id, items, catatan = '', status = 'lunas', jatuh_tempo = null, skip_stok = false } = req.body;
 
@@ -24,7 +22,6 @@ router.post('/', async (req, res) => {
     }
 
     const total = items.reduce((sum, i) => sum + (i.qty * i.harga_beli), 0);
-
 
     const totalDibayarAwal = status === 'lunas' ? total : 0;
     const dilunasiAtAwal   = status === 'lunas' ? new Date() : null;
@@ -43,7 +40,6 @@ router.post('/', async (req, res) => {
           [pembelianId, item.barang_id, item.qty, item.harga_beli]
         );
         if (!skip_stok) {
-
 
           await conn.query('UPDATE barang SET stok = stok + ? WHERE id = ?',
             [item.qty, item.barang_id]);
@@ -121,7 +117,6 @@ router.put('/:id/lunasi', async (req, res) => {
   }
 });
 
-
 router.get('/:id/cicilan', async (req, res) => {
   try {
     const [rows] = await db.query(`
@@ -136,7 +131,6 @@ router.get('/:id/cicilan', async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 });
-
 
 router.delete('/:id/cicil/:cicilanId', roleMiddleware('owner'), async (req, res) => {
   const conn = await db.getConnection();
@@ -181,7 +175,6 @@ router.delete('/:id/cicil/:cicilanId', roleMiddleware('owner'), async (req, res)
     conn.release();
   }
 });
-
 
 router.post('/:id/cicil', async (req, res) => {
   const conn = await db.getConnection();
@@ -241,7 +234,6 @@ router.post('/:id/cicil', async (req, res) => {
   }
 });
 
-
 router.put('/lunasi-batch', async (req, res) => {
   try {
     const { ids } = req.body;
@@ -258,7 +250,6 @@ router.put('/lunasi-batch', async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 });
-
 
 router.put('/:id/batalkan', roleMiddleware('owner'), async (req, res) => {
   const conn = await db.getConnection();
@@ -279,7 +270,6 @@ router.put('/:id/batalkan', roleMiddleware('owner'), async (req, res) => {
       await conn.rollback();
       return res.status(400).json({ success: false, message: 'Pembelian ini sudah dibatalkan sebelumnya.' });
     }
-
 
     if (!cek[0].stok_ditambahkan) {
       await conn.query(
@@ -304,7 +294,6 @@ router.put('/:id/batalkan', roleMiddleware('owner'), async (req, res) => {
        FOR UPDATE`,
       [req.params.id]
     );
-
 
     for (const item of items) {
       if (Number(item.stok) < Number(item.qty)) {
@@ -341,7 +330,6 @@ router.put('/:id/batalkan', roleMiddleware('owner'), async (req, res) => {
     conn.release();
   }
 });
-
 
 router.delete('/:id', roleMiddleware('owner'), async (req, res) => {
   try {

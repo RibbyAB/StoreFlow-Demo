@@ -3,7 +3,6 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { PengaturanProvider } from './context/PengaturanContext';
 
-
 import LoginPage      from './pages/auth/LoginPage';
 import DashboardPage  from './pages/dashboard/DashboardPage';
 import BarangPage     from './pages/barang/BarangPage';
@@ -13,9 +12,7 @@ import LaporanPage    from './pages/laporan/LaporanPage';
 import SupplierPage   from './pages/supplier/SupplierPage';
 import SettingsPage   from './pages/settings/SettingsPage';
 
-
 import MainLayout from './components/layout/MainLayout';
-
 
 const PrivateRoute = ({ children, ownerOnly = false }) => {
   const { user, loading } = useAuth();

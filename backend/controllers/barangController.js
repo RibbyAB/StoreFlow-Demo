@@ -18,7 +18,6 @@ const getAllBarang = async (req, res) => {
 
       if (search_by === 'kode') {
 
-
         kataKata.forEach(kata => {
           query += ' AND b.kode_barang LIKE ?';
           params.push(`${kata}%`);
@@ -56,12 +55,10 @@ const getAllBarang = async (req, res) => {
   }
 };
 
-
 const getBarangById = async (req, res) => {
   try {
     const [rows] = await db.query('SELECT * FROM barang WHERE id = ?', [req.params.id]);
     if (rows.length === 0) return res.status(404).json({ success: false, message: 'Barang tidak ditemukan.' });
-
 
     const [suppliers] = await db.query(
       `SELECT s.id, s.nama FROM supplier s
@@ -75,7 +72,6 @@ const getBarangById = async (req, res) => {
     res.status(500).json({ success: false, message: 'Gagal mengambil data barang.' });
   }
 };
-
 
 const createBarang = async (req, res) => {
   const conn = await db.getConnection();
@@ -106,7 +102,6 @@ const createBarang = async (req, res) => {
 
     const barangId = result.insertId;
 
-
     for (const sid of supplier_ids) {
       await conn.query(
         'INSERT IGNORE INTO barang_supplier (barang_id, supplier_id) VALUES (?, ?)',
@@ -125,7 +120,6 @@ const createBarang = async (req, res) => {
     conn.release();
   }
 };
-
 
 const updateBarang = async (req, res) => {
   const conn = await db.getConnection();
@@ -157,7 +151,6 @@ const updateBarang = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Barang tidak ditemukan.' });
     }
 
-
     await conn.query('DELETE FROM barang_supplier WHERE barang_id = ?', [id]);
     for (const sid of supplier_ids) {
       await conn.query(
@@ -178,7 +171,6 @@ const updateBarang = async (req, res) => {
   }
 };
 
-
 const deleteBarang = async (req, res) => {
   try {
     const [result] = await db.query('DELETE FROM barang WHERE id = ?', [req.params.id]);
@@ -191,7 +183,6 @@ const deleteBarang = async (req, res) => {
     res.status(500).json({ success: false, message: 'Gagal menghapus barang.' });
   }
 };
-
 
 const getBarangSuppliers = async (req, res) => {
   try {
@@ -207,7 +198,6 @@ const getBarangSuppliers = async (req, res) => {
     res.status(500).json({ success: false, message: 'Gagal mengambil data.' });
   }
 };
-
 
 const getTrenBulanan = async (req, res) => {
   try {
@@ -237,7 +227,6 @@ const getTrenBulanan = async (req, res) => {
           AND MONTH(CONVERT_TZ(pb.created_at, '+00:00', '+07:00')) = ?
       `, [barangId, b.tahun, b.bulan]);
 
-
       const [jual] = await db.query(`
         SELECT
           COALESCE(AVG(dj.harga_jual), 0) AS rata_harga_jual,
@@ -252,7 +241,6 @@ const getTrenBulanan = async (req, res) => {
 
       const totalPendapatan = Number(jual[0].total_pendapatan);
       const totalQtyJual    = Number(jual[0].total_qty_jual);
-
 
       const hpp        = totalQtyJual * Number(barangRows[0].harga_beli_sekarang);
       const labaBersih = totalPendapatan - hpp;

@@ -1,12 +1,10 @@
 const db = require('../config/database');
 
-
 const getDashboard = async (req, res) => {
   try {
 
     const nowWIB = new Date(Date.now() + 7 * 60 * 60 * 1000);
     const hariIni = nowWIB.toISOString().split('T')[0];
-
 
     const [[penjualanHariIni]] = await db.query(`
       SELECT
@@ -37,7 +35,6 @@ const getDashboard = async (req, res) => {
         AND p.status != 'dibatalkan'
     `, [hariIni]);
 
-
     const [[cicilanHariIni]] = await db.query(`
       SELECT COALESCE(SUM(jumlah), 0) AS total_cicilan
       FROM cicilan_penjualan
@@ -45,9 +42,7 @@ const getDashboard = async (req, res) => {
     `, [hariIni]);
     penjualanHariIni.total_pendapatan = Number(penjualanHariIni.total_pendapatan_lunas) + Number(cicilanHariIni.total_cicilan);
 
-
     const [[totalBarang]] = await db.query('SELECT COUNT(*) AS total FROM barang');
-
 
     const [[stokMenipis]] = await db.query(`
       SELECT COUNT(*) AS total
@@ -55,13 +50,11 @@ const getDashboard = async (req, res) => {
       WHERE stok <= COALESCE(stok_minimum, 5)
     `);
 
-
     const [[totalHutang]] = await db.query(`
       SELECT COUNT(*) AS total, COALESCE(SUM(total - total_dibayar), 0) AS nilai
       FROM penjualan
       WHERE status = 'belum_lunas'
     `);
-
 
     const [grafikRaw] = await db.query(`
       SELECT
@@ -95,7 +88,6 @@ const getDashboard = async (req, res) => {
       ORDER BY tanggal ASC
     `, [hariIni]);
 
-
     const [cicilanMingguanRaw] = await db.query(`
       SELECT tanggal, COALESCE(SUM(jumlah), 0) AS total_cicilan
       FROM cicilan_penjualan
@@ -108,7 +100,6 @@ const getDashboard = async (req, res) => {
         Number(row.total_cicilan)
       ])
     );
-
 
     const petaGrafik = new Map(
       grafikRaw.map(row => [
@@ -132,7 +123,6 @@ const getDashboard = async (req, res) => {
 
     const totalMinggu = grafikMingguan.reduce((s, g) => s + g.total, 0);
     const rataRataMinggu = totalMinggu / 7;
-
 
     const [transaksiTerakhir] = await db.query(`
       SELECT p.id, p.total, p.metode_bayar, p.created_at,

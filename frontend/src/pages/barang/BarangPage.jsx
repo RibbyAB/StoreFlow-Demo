@@ -11,7 +11,6 @@ const formKosong = {
   supplier_ids: [],
 };
 
-
 export default function BarangPage() {
   const [data,         setData]         = useState([]);
   const [supplierList, setSupplierList] = useState([]);
@@ -240,7 +239,6 @@ export default function BarangPage() {
             <form
               onSubmit={simpan}
               onKeyDown={e => {
-
 
                 if (e.key === 'Enter' && e.target.type === 'checkbox') {
                   e.preventDefault();

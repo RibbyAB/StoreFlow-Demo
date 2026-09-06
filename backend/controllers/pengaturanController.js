@@ -1,6 +1,5 @@
 const db = require('../config/database');
 
-
 const getPengaturan = async (req, res) => {
   try {
     const [rows] = await db.query('SELECT * FROM pengaturan WHERE id = 1');
@@ -20,7 +19,6 @@ const getPengaturan = async (req, res) => {
     res.status(500).json({ success: false, message: 'Gagal mengambil pengaturan.' });
   }
 };
-
 
 const updatePengaturan = async (req, res) => {
   try {
